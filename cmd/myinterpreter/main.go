@@ -15,9 +15,9 @@ func tokenize(lox_file_contents string) []string {
 		}else if char == ')' {
 			tokenization = append(tokenization, "RIGHT_PAREN ) null")
 		}else if char == '{' {
-			tokenization = append(tokenization, "LEFT_BRACE ) null")
+			tokenization = append(tokenization, "LEFT_BRACE { null")
 		}else if char == '}' {
-			tokenization = append(tokenization, "RIGHT_BRACE ) null")
+			tokenization = append(tokenization, "RIGHT_BRACE } null")
 		}
 	}
 	tokenization = append(tokenization, "EOF  null")
