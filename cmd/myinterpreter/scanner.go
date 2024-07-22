@@ -7,6 +7,8 @@ import (
 )
 
 type Scanner struct {
+	current int
+	contents string
 	tokens []Token
 }
 
@@ -18,12 +20,31 @@ func (scanner *Scanner) AddToken(token_type TokenType, lexeme string, literal in
 	scanner.tokens = append(scanner.tokens, new_token)
 }
 
+func (scanner *Scanner) Advance() byte {
+	ch := scanner.contents[scanner.current]
+	scanner.current++
+	return ch
+}
+
+func (scanner *Scanner) Match(char byte) bool {
+	if scanner.AtEnd() || scanner.contents[scanner.current] != char {
+		return false
+	}
+	scanner.current++
+	return true
+}
+
+func (scanner *Scanner) AtEnd() bool {
+	return scanner.current == len(scanner.contents)
+}
+
 func (scanner *Scanner) Scan(lox_file_contents string) error {
+	scanner.contents = lox_file_contents
+	scanner.current = 0
 	line := 1
 	var err error
-	err = nil
-	for i := 0; i < len(lox_file_contents); i++ {
-		char := lox_file_contents[i]
+	for ; !scanner.AtEnd(); {
+		char := scanner.Advance()
 		switch char {
 		case '(': scanner.AddToken(LEFT_PAREN, "(", nil); break;
 		case ')': scanner.AddToken(RIGHT_PAREN, ")", nil); break;
@@ -37,19 +58,31 @@ func (scanner *Scanner) Scan(lox_file_contents string) error {
 		case '*': scanner.AddToken(STAR, "*", nil); break;
 		case '\n': line++; break;
 		case '=':
-			if i+1 < len(lox_file_contents) && lox_file_contents[i+1] == '='{
+			if scanner.Match('=') {
 				scanner.AddToken(EQUAL_EQUAL, "==", nil)
-				i++;
 			} else {
 				scanner.AddToken(EQUAL, "=", nil)
 			}
 			break;
 		case '!':
-			if i+1 < len(lox_file_contents) && lox_file_contents[i+1] == '='{
+			if scanner.Match('=') {
 				scanner.AddToken(BANG_EQUAL, "!=", nil)
-				i++;
 			} else {
 				scanner.AddToken(BANG, "!", nil)
+			}
+			break;
+		case '<':
+			if scanner.Match('=') {
+				scanner.AddToken(LESS_EQUAL, "<=", nil)
+			} else {
+				scanner.AddToken(LESS, "<", nil)
+			}
+			break;
+		case '>':
+			if scanner.Match('=') {
+				scanner.AddToken(GREATER_EQUAL, ">=", nil)
+			} else {
+				scanner.AddToken(GREATER, ">", nil)
 			}
 			break;
 		default:

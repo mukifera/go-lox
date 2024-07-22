@@ -20,6 +20,10 @@ const (
 	EQUAL_EQUAL
 	BANG
 	BANG_EQUAL
+	LESS
+	LESS_EQUAL
+	GREATER
+	GREATER_EQUAL
 )
 
 func (tt TokenType) String() string {
@@ -30,6 +34,8 @@ func (tt TokenType) String() string {
 		"COMMA", "DOT", "MINUS", "PLUS", "STAR", "SEMICOLON",
 		"EQUAL", "EQUAL_EQUAL",
 		"BANG", "BANG_EQUAL",
+		"LESS", "LESS_EQUAL",
+		"GREATER", "GREATER_EQUAL",
 	}[tt]
 }
 
