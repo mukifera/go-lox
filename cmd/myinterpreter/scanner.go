@@ -38,6 +38,13 @@ func (scanner *Scanner) AtEnd() bool {
 	return scanner.current == len(scanner.contents)
 }
 
+func (scanner *Scanner) Peek() byte {
+	if scanner.AtEnd() {
+		return 0
+	}
+	return scanner.contents[scanner.current]
+}
+
 func (scanner *Scanner) Scan(lox_file_contents string) error {
 	scanner.contents = lox_file_contents
 	scanner.current = 0
@@ -83,6 +90,15 @@ func (scanner *Scanner) Scan(lox_file_contents string) error {
 				scanner.AddToken(GREATER_EQUAL, ">=", nil)
 			} else {
 				scanner.AddToken(GREATER, ">", nil)
+			}
+			break;
+		case '/':
+			if scanner.Peek() != '/' {
+				scanner.AddToken(SLASH, "/", nil)
+				break;
+			}
+			for ; scanner.Peek() != '\n' && scanner.Peek() != 0 ; {
+				scanner.Advance()
 			}
 			break;
 		default:
