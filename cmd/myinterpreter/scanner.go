@@ -21,6 +21,12 @@ func (scanner *Scanner) Scan(lox_file_contents string) {
 		case ')': scanner.AddToken(RIGHT_PAREN, ")", nil); break;
 		case '{': scanner.AddToken(LEFT_BRACE, "{", nil); break;
 		case '}': scanner.AddToken(RIGHT_BRACE, "}", nil); break;
+		case ',': scanner.AddToken(COMMA, ",", nil); break;
+		case '.': scanner.AddToken(DOT, ".", nil); break;
+		case '-': scanner.AddToken(MINUS, "-", nil); break;
+		case '+': scanner.AddToken(PLUS, "+", nil); break;
+		case ';': scanner.AddToken(SEMICOLON, ";", nil); break;
+		case '*': scanner.AddToken(STAR, "*", nil); break;
 		}
 	}
 	scanner.AddToken(EOF, "", nil)
