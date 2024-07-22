@@ -26,6 +26,7 @@ const (
 	GREATER_EQUAL
 	SLASH
 	STRING
+	NUMBER
 )
 
 func (tt TokenType) String() string {
@@ -40,6 +41,7 @@ func (tt TokenType) String() string {
 		"GREATER", "GREATER_EQUAL",
 		"SLASH",
 		"STRING",
+		"NUMBER",
 	}[tt]
 }
 
@@ -50,9 +52,11 @@ type Token struct {
 }
 
 func (t Token) String () string {
-	literal_string := t.literal
-	if t.literal == nil{
-		literal_string = "null"
+	token_string := fmt.Sprintf("%s %s ", t.token_type.String(), t.lexeme)
+	switch t.literal.(type) {
+	case int: token_string += fmt.Sprintf("%d", t.literal); break;
+	case float64: token_string += fmt.Sprintf("%g", t.literal); break;
+	case nil: token_string += "null"; break;
 	}
-	return fmt.Sprintf("%s %s %s", t.token_type.String(), t.lexeme, literal_string)
+	return token_string
 }

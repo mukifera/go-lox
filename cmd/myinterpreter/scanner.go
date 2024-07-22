@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"os"
 	"errors"
+	"fmt"
+	"math/big"
+	"os"
 )
 
 type Scanner struct {
@@ -51,8 +52,39 @@ func (scanner *Scanner) Scan(lox_file_contents string) error {
 	line := 1
 	found_error := false
 	for ; !scanner.AtEnd(); {
+		start := scanner.current
 		char := scanner.Advance()
 		switch char {
+		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+			var power, digit, ten, tmp, float_literal big.Float
+			power.SetFloat64(1.0)
+			ten.SetFloat64(10.0)
+			float_literal.SetFloat64(float64(char - '0'))
+			has_point := false
+			for ;; scanner.Advance() {
+				peek := scanner.Peek()
+				if peek == '.' {
+					if has_point {
+						break
+					}
+					has_point = true
+					continue
+				}
+				if peek == 0 || peek < '0' || peek > '9' {
+					break
+				}
+				digit.SetFloat64(float64(peek - '0'))
+				if has_point {
+					power.Quo(&power, &ten)
+					tmp.Mul(&power, &digit)
+					float_literal.Add(&float_literal, &tmp)
+				} else {
+					tmp.Mul(&float_literal, &ten)
+					float_literal.Add(&tmp, &digit)
+				}
+			}
+			scanner.AddToken(NUMBER, scanner.contents[start:scanner.current], float_literal)
+			break
 		case '(': scanner.AddToken(LEFT_PAREN, "(", nil); break;
 		case ')': scanner.AddToken(RIGHT_PAREN, ")", nil); break;
 		case '{': scanner.AddToken(LEFT_BRACE, "{", nil); break;
