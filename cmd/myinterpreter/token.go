@@ -25,6 +25,7 @@ const (
 	GREATER
 	GREATER_EQUAL
 	SLASH
+	STRING
 )
 
 func (tt TokenType) String() string {
@@ -38,6 +39,7 @@ func (tt TokenType) String() string {
 		"LESS", "LESS_EQUAL",
 		"GREATER", "GREATER_EQUAL",
 		"SLASH",
+		"STRING",
 	}[tt]
 }
 

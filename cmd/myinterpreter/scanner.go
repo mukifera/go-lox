@@ -16,7 +16,7 @@ func (scanner *Scanner) AddToken(token_type TokenType, lexeme string, literal in
 	var new_token Token
 	new_token.token_type = token_type
 	new_token.lexeme = lexeme
-	new_token.literal = nil
+	new_token.literal = literal
 	scanner.tokens = append(scanner.tokens, new_token)
 }
 
@@ -49,7 +49,7 @@ func (scanner *Scanner) Scan(lox_file_contents string) error {
 	scanner.contents = lox_file_contents
 	scanner.current = 0
 	line := 1
-	var err error
+	found_error := false
 	for ; !scanner.AtEnd(); {
 		char := scanner.Advance()
 		switch char {
@@ -101,16 +101,35 @@ func (scanner *Scanner) Scan(lox_file_contents string) error {
 				scanner.Advance()
 			}
 			break;
+		case '"':
+			string_literal := ""
+			for {
+				if scanner.AtEnd() || scanner.Peek() == '\n' {
+					fmt.Fprintf(os.Stderr, "[line %d] Error: Unterminated string.\n", line)
+					found_error = true
+					break
+				}
+				char := scanner.Advance()
+				if char == '"'{
+					scanner.AddToken(STRING, "\"" + string_literal + "\"", string_literal)
+					break
+				}
+				string_literal += string(char)
+			}
+			
 		case '\t':
 		case ' ':
 			break;
 		default:
 			fmt.Fprintf(os.Stderr, "[line %d] Error: Unexpected character: %c\n", line, char)
-			err = errors.New("Unexpected characters")
+			found_error = true
 		}
 	}
 	scanner.AddToken(EOF, "", nil)
-	return err
+	if found_error {
+		return errors.New("Error scanning file contents")
+	}
+	return nil
 }
 
 func (scanner Scanner) StringifyTokens() string {
