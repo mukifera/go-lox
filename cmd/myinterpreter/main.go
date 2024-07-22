@@ -3,7 +3,22 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 )
+
+func tokenize(lox_file_contents string) []string {
+	var tokenization []string
+	for i := 0; i < len(lox_file_contents); i++ {
+		char := lox_file_contents[i]
+		if char == '('{
+			tokenization = append(tokenization, "LEFT_PAREN ( null")
+		}else if char == ')' {
+			tokenization = append(tokenization, "RIGHT_PAREN ) null")
+		}
+	}
+	tokenization = append(tokenization, "EOF  null")
+	return tokenization
+}
 
 func main() {
 
@@ -26,9 +41,5 @@ func main() {
 		os.Exit(1)
 	}
 	
-	if len(fileContents) > 0 {
-		panic("Scanner not implemented")
-	} else {
-		fmt.Println("EOF  null") // Placeholder, remove this line when implementing the scanner
-	}
+	fmt.Println(strings.Join(tokenize(string(fileContents)), "\n"))
 }
