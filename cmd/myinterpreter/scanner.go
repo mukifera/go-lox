@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"errors"
 )
 
 type Scanner struct {
@@ -17,8 +18,10 @@ func (scanner *Scanner) AddToken(token_type TokenType, lexeme string, literal in
 	scanner.tokens = append(scanner.tokens, new_token)
 }
 
-func (scanner *Scanner) Scan(lox_file_contents string) {
+func (scanner *Scanner) Scan(lox_file_contents string) error {
 	line := 1
+	var err error
+	err = nil
 	for i := 0; i < len(lox_file_contents); i++ {
 		char := lox_file_contents[i]
 		switch char {
@@ -35,9 +38,11 @@ func (scanner *Scanner) Scan(lox_file_contents string) {
 		case '\n': line++; break;
 		default:
 			fmt.Fprintf(os.Stderr, "[line %d] Error: Unexpected character: %c\n", line, char)
+			err = errors.New("Unexpected characters")
 		}
 	}
 	scanner.AddToken(EOF, "", nil)
+	return err
 }
 
 func (scanner Scanner) StringifyTokens() string {

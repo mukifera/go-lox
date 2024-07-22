@@ -27,7 +27,9 @@ func main() {
 	}
 
 	var scanner Scanner
-	scanner.Scan(string(fileContents))
-	
+	err = scanner.Scan(string(fileContents))
 	fmt.Println(scanner.StringifyTokens())
+	if err != nil {
+		os.Exit(65)
+	}
 }
