@@ -35,6 +35,7 @@ func (scanner *Scanner) Scan(lox_file_contents string) error {
 		case '+': scanner.AddToken(PLUS, "+", nil); break;
 		case ';': scanner.AddToken(SEMICOLON, ";", nil); break;
 		case '*': scanner.AddToken(STAR, "*", nil); break;
+		case '\n': line++; break;
 		case '=':
 			if i+1 < len(lox_file_contents) && lox_file_contents[i+1] == '='{
 				scanner.AddToken(EQUAL_EQUAL, "==", nil)
@@ -43,7 +44,14 @@ func (scanner *Scanner) Scan(lox_file_contents string) error {
 				scanner.AddToken(EQUAL, "=", nil)
 			}
 			break;
-		case '\n': line++; break;
+		case '!':
+			if i+1 < len(lox_file_contents) && lox_file_contents[i+1] == '='{
+				scanner.AddToken(BANG_EQUAL, "!=", nil)
+				i++;
+			} else {
+				scanner.AddToken(BANG, "!", nil)
+			}
+			break;
 		default:
 			fmt.Fprintf(os.Stderr, "[line %d] Error: Unexpected character: %c\n", line, char)
 			err = errors.New("Unexpected characters")

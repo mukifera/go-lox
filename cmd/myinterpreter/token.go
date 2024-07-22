@@ -18,6 +18,8 @@ const (
 	SEMICOLON
 	EQUAL
 	EQUAL_EQUAL
+	BANG
+	BANG_EQUAL
 )
 
 func (tt TokenType) String() string {
@@ -27,6 +29,7 @@ func (tt TokenType) String() string {
 		"LEFT_BRACE", "RIGHT_BRACE",
 		"COMMA", "DOT", "MINUS", "PLUS", "STAR", "SEMICOLON",
 		"EQUAL", "EQUAL_EQUAL",
+		"BANG", "BANG_EQUAL",
 	}[tt]
 }
 
