@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 )
 
 func main() {
@@ -26,6 +25,9 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
 		os.Exit(1)
 	}
+
+	var scanner Scanner
+	scanner.Scan(string(fileContents))
 	
-	fmt.Println(strings.Join(tokenize(string(fileContents)), "\n"))
+	fmt.Println(scanner.StringifyTokens())
 }
