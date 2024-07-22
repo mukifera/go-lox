@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"os"
+)
+
 type Scanner struct {
 	tokens []Token
 }
@@ -13,7 +18,7 @@ func (scanner *Scanner) AddToken(token_type TokenType, lexeme string, literal in
 }
 
 func (scanner *Scanner) Scan(lox_file_contents string) {
-
+	line := 1
 	for i := 0; i < len(lox_file_contents); i++ {
 		char := lox_file_contents[i]
 		switch char {
@@ -27,6 +32,9 @@ func (scanner *Scanner) Scan(lox_file_contents string) {
 		case '+': scanner.AddToken(PLUS, "+", nil); break;
 		case ';': scanner.AddToken(SEMICOLON, ";", nil); break;
 		case '*': scanner.AddToken(STAR, "*", nil); break;
+		case '\n': line++; break;
+		default:
+			fmt.Fprintf(os.Stderr, "[line %d] Error: Unexpected character: %c\n", line, char)
 		}
 	}
 	scanner.AddToken(EOF, "", nil)
