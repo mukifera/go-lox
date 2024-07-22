@@ -101,6 +101,9 @@ func (scanner *Scanner) Scan(lox_file_contents string) error {
 				scanner.Advance()
 			}
 			break;
+		case '\t':
+		case ' ':
+			break;
 		default:
 			fmt.Fprintf(os.Stderr, "[line %d] Error: Unexpected character: %c\n", line, char)
 			err = errors.New("Unexpected characters")
