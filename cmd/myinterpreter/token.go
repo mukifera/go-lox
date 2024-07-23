@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/big"
+)
 
 type TokenType int
 
@@ -53,10 +56,14 @@ type Token struct {
 
 func (t Token) String () string {
 	token_string := fmt.Sprintf("%s %s ", t.token_type.String(), t.lexeme)
-	switch t.literal.(type) {
-	case int: token_string += fmt.Sprintf("%d", t.literal); break;
-	case float64: token_string += fmt.Sprintf("%g", t.literal); break;
-	case nil: token_string += "null"; break;
+	switch literal := t.literal.(type) {
+	case int:
+		token_string += fmt.Sprintf("%d", literal); break;
+	case big.Float:
+		token_string += literal.String();
+		break;
+	case nil:
+		token_string += "null"; break;
 	}
 	return token_string
 }
