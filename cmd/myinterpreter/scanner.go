@@ -53,8 +53,16 @@ func (scanner *Scanner) PeekNext() byte {
 	return scanner.contents[scanner.current + 1]
 }
 
-func IsAlpha(c byte) bool {
-	return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'z')
+func isAlpha(c byte) bool {
+	return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'z') || (c == '_')
+}
+
+func isDigit(c byte) bool {
+	return '0' <= c && c <= '9'
+}
+
+func isAlphaNumeric(c byte) bool {
+	return isAlpha(c) || isDigit(c)
 }
 
 func (scanner *Scanner) Scan(lox_file_contents string) error {
@@ -165,10 +173,10 @@ func (scanner *Scanner) Scan(lox_file_contents string) error {
 		case ' ':
 			break;
 		default:
-			if IsAlpha(char) {
+			if isAlpha(char) {
 				for {
 					peek := scanner.Peek()
-					if !IsAlpha(peek) { break }
+					if !isAlphaNumeric(peek) { break }
 					scanner.Advance()
 				}
 				scanner.AddToken(IDENTIFIER, scanner.contents[start:scanner.current], nil)
