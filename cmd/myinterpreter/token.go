@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/big"
+	"strings"
 )
 
 type TokenType int
@@ -60,7 +61,11 @@ func (t Token) String () string {
 	case int:
 		token_string += fmt.Sprintf("%d", literal); break;
 	case big.Float:
-		token_string += literal.String();
+		formatted := literal.String()
+		if !strings.Contains(formatted, ".") {
+			formatted += ".0"
+		}
+		token_string += formatted;
 		break;
 	case nil:
 		token_string += "null"; break;
