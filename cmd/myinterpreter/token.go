@@ -90,22 +90,22 @@ type Token struct {
 	literal interface{}
 }
 
-func (t Token) String () string {
-	token_string := fmt.Sprintf("%s %s ", t.token_type.String(), t.lexeme)
+func (t Token) StringLiteral () string {
 	switch literal := t.literal.(type) {
-	case int:
-		token_string += fmt.Sprintf("%d", literal); break;
-	case string:
-		token_string += literal
+	case int: return fmt.Sprintf("%d", literal);
+	case string: return literal;
 	case big.Float:
 		formatted := literal.String()
 		if !strings.Contains(formatted, ".") {
 			formatted += ".0"
 		}
-		token_string += formatted;
-		break;
-	case nil:
-		token_string += "null"; break;
+		return formatted
 	}
+	return "null"
+}
+
+func (t Token) String () string {
+	token_string := fmt.Sprintf("%s %s ", t.token_type.String(), t.lexeme)
+	token_string += t.StringLiteral()
 	return token_string
 }
