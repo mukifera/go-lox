@@ -68,7 +68,7 @@ func (tt TokenType) String() string {
 		"AND",
 		"CLASS",
 		"ELSE",
-		"FLASE",
+		"FALSE",
 		"FOR",
 		"FUN",
 		"IF",
