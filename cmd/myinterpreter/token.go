@@ -60,6 +60,8 @@ func (t Token) String () string {
 	switch literal := t.literal.(type) {
 	case int:
 		token_string += fmt.Sprintf("%d", literal); break;
+	case string:
+		token_string += literal
 	case big.Float:
 		formatted := literal.String()
 		if !strings.Contains(formatted, ".") {
