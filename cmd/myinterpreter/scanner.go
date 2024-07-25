@@ -9,6 +9,7 @@ import (
 
 type Scanner struct {
 	current int
+	start int
 	contents string
 	tokens []Token
 }
@@ -65,6 +66,47 @@ func isAlphaNumeric(c byte) bool {
 	return isAlpha(c) || isDigit(c)
 }
 
+func stringToBigFloat(str string) big.Float {
+	var power, digit, ten, tmp, float_literal big.Float
+	power.SetFloat64(1.0)
+	ten.SetFloat64(10.0)
+	float_literal.SetFloat64(0)
+	found_period := false
+	for _, char := range str {
+		if char == '.' {
+			found_period = true
+			continue
+		}
+		if found_period {
+			digit.SetFloat64(float64(char - '0'))
+			power.Quo(&power, &ten)
+			tmp.Mul(&power, &digit)
+			float_literal.Add(&float_literal, &tmp)
+		} else {
+			digit.SetFloat64(float64(char - '0'))
+			tmp.Mul(&float_literal, &ten)
+			float_literal.Add(&tmp, &digit)
+		}
+	}
+	return float_literal
+}
+
+func (scanner *Scanner) ScanNumber() {
+	for {
+		if !isDigit(scanner.Peek()) { break }
+		scanner.Advance()
+	}
+	if scanner.Peek() == '.' && isDigit(scanner.PeekNext()) {
+		scanner.Advance()
+		for {
+			if !isDigit(scanner.Peek()) { break }
+			scanner.Advance()
+		}
+	}
+	lexeme := scanner.contents[scanner.start : scanner.current]
+	scanner.AddToken(NUMBER, lexeme, stringToBigFloat(lexeme))
+}
+
 func (scanner *Scanner) Scan(lox_file_contents string) error {
 	scanner.contents = lox_file_contents
 	scanner.current = 0
@@ -92,40 +134,9 @@ func (scanner *Scanner) Scan(lox_file_contents string) error {
 	}
 
 	for ; !scanner.AtEnd(); {
-		start := scanner.current
+		scanner.start = scanner.current
 		char := scanner.Advance()
 		switch char {
-		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
-			var power, digit, ten, tmp, float_literal big.Float
-			power.SetFloat64(1.0)
-			ten.SetFloat64(10.0)
-			float_literal.SetFloat64(float64(char - '0'))
-			for {
-				peek := scanner.Peek()
-				if peek < '0' || peek > '9' {
-					break
-				}
-				digit.SetFloat64(float64(peek - '0'))
-				tmp.Mul(&float_literal, &ten)
-				float_literal.Add(&tmp, &digit)
-				scanner.Advance()
-			}
-			if scanner.Peek() == '.' && scanner.PeekNext() >= '0' && scanner.PeekNext() <= '9' {
-				scanner.Advance()
-				for {
-					peek := scanner.Peek()
-					if peek < '0' || peek > '9' {
-						break
-					}
-					digit.SetFloat64(float64(peek - '0'))
-					power.Quo(&power, &ten)
-					tmp.Mul(&power, &digit)
-					float_literal.Add(&float_literal, &tmp)
-					scanner.Advance()
-				}
-			}
-			scanner.AddToken(NUMBER, scanner.contents[start:scanner.current], float_literal)
-			break
 		case '(': scanner.AddToken(LEFT_PAREN, "(", nil); break;
 		case ')': scanner.AddToken(RIGHT_PAREN, ")", nil); break;
 		case '{': scanner.AddToken(LEFT_BRACE, "{", nil); break;
@@ -194,13 +205,15 @@ func (scanner *Scanner) Scan(lox_file_contents string) error {
 		case ' ':
 			break;
 		default:
-			if isAlpha(char) {
+			if isDigit(char) {
+				scanner.ScanNumber()
+			} else if isAlpha(char) {
 				for {
 					peek := scanner.Peek()
 					if !isAlphaNumeric(peek) { break }
 					scanner.Advance()
 				}
-				lexeme := scanner.contents[start:scanner.current]
+				lexeme := scanner.contents[scanner.start : scanner.current]
 				if token_type, ok := reserved_words[lexeme]; ok {
 					scanner.AddToken(token_type, lexeme, nil)
 				} else {
