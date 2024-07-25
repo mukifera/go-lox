@@ -32,6 +32,23 @@ const (
 	STRING
 	NUMBER
 	IDENTIFIER
+
+	AND
+	CLASS
+	ELSE
+	FALSE
+	FOR
+	FUN
+	IF
+	NIL
+	OR
+	PRINT
+	RETURN
+	SUPER
+	THIS
+	TRUE
+	VAR
+	WHILE
 )
 
 func (tt TokenType) String() string {
@@ -48,6 +65,22 @@ func (tt TokenType) String() string {
 		"STRING",
 		"NUMBER",
 		"IDENTIFIER",
+		"AND",
+		"CLASS",
+		"ELSE",
+		"FLASE",
+		"FOR",
+		"FUN",
+		"IF",
+		"NIL",
+		"OR",
+		"PRINT",
+		"RETURN",
+		"SUPER",
+		"THIS",
+		"TRUE",
+		"VAR",
+		"WHILE",
 	}[tt]
 }
 
