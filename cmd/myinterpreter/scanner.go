@@ -12,6 +12,36 @@ type Scanner struct {
 	start int
 	contents string
 	tokens []Token
+	reserved_words map[string]TokenType
+}
+
+func NewScanner(contents string) *Scanner {
+	var scanner Scanner
+	scanner.contents = contents
+	scanner.current = 0
+	scanner.start = 0
+	
+	scanner.reserved_words = make(map[string]TokenType)
+	{
+		scanner.reserved_words["and"] 	 = AND
+		scanner.reserved_words["class"]  = CLASS
+		scanner.reserved_words["else"] 	 = ELSE
+		scanner.reserved_words["false"]  = FALSE
+		scanner.reserved_words["for"] 	 = FOR
+		scanner.reserved_words["fun"] 	 = FUN
+		scanner.reserved_words["if"] 		 = IF
+		scanner.reserved_words["nil"] 	 = NIL
+		scanner.reserved_words["or"] 		 = OR
+		scanner.reserved_words["print"]  = PRINT
+		scanner.reserved_words["return"] = RETURN
+		scanner.reserved_words["super"]  = SUPER
+		scanner.reserved_words["this"]   = THIS
+		scanner.reserved_words["true"] 	 = TRUE
+		scanner.reserved_words["var"] 	 = VAR
+		scanner.reserved_words["while"]  = WHILE
+	}
+
+	return &scanner
 }
 
 func (scanner *Scanner) AddToken(token_type TokenType, lexeme string, literal interface{}) {
@@ -107,32 +137,23 @@ func (scanner *Scanner) ScanNumber() {
 	scanner.AddToken(NUMBER, lexeme, stringToBigFloat(lexeme))
 }
 
-func (scanner *Scanner) Scan(lox_file_contents string) error {
-	scanner.contents = lox_file_contents
-	scanner.current = 0
+func (scanner *Scanner) ScanIdentifier() {
+	for {
+		peek := scanner.Peek()
+		if !isAlphaNumeric(peek) { break }
+		scanner.Advance()
+	}
+	lexeme := scanner.contents[scanner.start : scanner.current]
+	if token_type, ok := scanner.reserved_words[lexeme]; ok {
+		scanner.AddToken(token_type, lexeme, nil)
+	} else {
+		scanner.AddToken(IDENTIFIER, lexeme, nil)
+	}
+}
+
+func (scanner *Scanner) Scan() error {
 	line := 1
 	found_error := false
-
-	reserved_words := make(map[string]TokenType)
-	{
-		reserved_words["and"] 	 = AND
-		reserved_words["class"]  = CLASS
-		reserved_words["else"] 	 = ELSE
-		reserved_words["false"]  = FALSE
-		reserved_words["for"] 	 = FOR
-		reserved_words["fun"] 	 = FUN
-		reserved_words["if"] 		 = IF
-		reserved_words["nil"] 	 = NIL
-		reserved_words["or"] 		 = OR
-		reserved_words["print"]  = PRINT
-		reserved_words["return"] = RETURN
-		reserved_words["super"]  = SUPER
-		reserved_words["this"]   = THIS
-		reserved_words["true"] 	 = TRUE
-		reserved_words["var"] 	 = VAR
-		reserved_words["while"]  = WHILE
-	}
-
 	for ; !scanner.AtEnd(); {
 		scanner.start = scanner.current
 		char := scanner.Advance()
@@ -208,17 +229,7 @@ func (scanner *Scanner) Scan(lox_file_contents string) error {
 			if isDigit(char) {
 				scanner.ScanNumber()
 			} else if isAlpha(char) {
-				for {
-					peek := scanner.Peek()
-					if !isAlphaNumeric(peek) { break }
-					scanner.Advance()
-				}
-				lexeme := scanner.contents[scanner.start : scanner.current]
-				if token_type, ok := reserved_words[lexeme]; ok {
-					scanner.AddToken(token_type, lexeme, nil)
-				} else {
-					scanner.AddToken(IDENTIFIER, lexeme, nil)
-				}
+				scanner.ScanIdentifier()
 			} else {
 				fmt.Fprintf(os.Stderr, "[line %d] Error: Unexpected character: %c\n", line, char)
 				found_error = true
