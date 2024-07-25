@@ -133,7 +133,7 @@ func (scanner *Scanner) ScanNumber() {
 			scanner.Advance()
 		}
 	}
-	lexeme := scanner.contents[scanner.start : scanner.current]
+	lexeme := scanner.CurrentLexeme()
 	scanner.AddToken(NUMBER, lexeme, stringToBigFloat(lexeme))
 }
 
@@ -143,12 +143,16 @@ func (scanner *Scanner) ScanIdentifier() {
 		if !isAlphaNumeric(peek) { break }
 		scanner.Advance()
 	}
-	lexeme := scanner.contents[scanner.start : scanner.current]
+	lexeme := scanner.CurrentLexeme()
 	if token_type, ok := scanner.reserved_words[lexeme]; ok {
 		scanner.AddToken(token_type, lexeme, nil)
 	} else {
 		scanner.AddToken(IDENTIFIER, lexeme, nil)
 	}
+}
+
+func (scanner *Scanner) CurrentLexeme() string {
+	return scanner.contents[scanner.start : scanner.current]
 }
 
 func (scanner *Scanner) Scan() error {
