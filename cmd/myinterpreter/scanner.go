@@ -53,6 +53,10 @@ func (scanner *Scanner) PeekNext() byte {
 	return scanner.contents[scanner.current + 1]
 }
 
+func IsAlpha(c byte) bool {
+	return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'z')
+}
+
 func (scanner *Scanner) Scan(lox_file_contents string) error {
 	scanner.contents = lox_file_contents
 	scanner.current = 0
@@ -161,8 +165,17 @@ func (scanner *Scanner) Scan(lox_file_contents string) error {
 		case ' ':
 			break;
 		default:
-			fmt.Fprintf(os.Stderr, "[line %d] Error: Unexpected character: %c\n", line, char)
-			found_error = true
+			if IsAlpha(char) {
+				for {
+					peek := scanner.Peek()
+					if !IsAlpha(peek) { break }
+					scanner.Advance()
+				}
+				scanner.AddToken(IDENTIFIER, scanner.contents[start:scanner.current], nil)
+			} else {
+				fmt.Fprintf(os.Stderr, "[line %d] Error: Unexpected character: %c\n", line, char)
+				found_error = true
+			}
 		}
 	}
 	scanner.AddToken(EOF, "", nil)

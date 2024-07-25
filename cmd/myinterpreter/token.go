@@ -31,6 +31,7 @@ const (
 	SLASH
 	STRING
 	NUMBER
+	IDENTIFIER
 )
 
 func (tt TokenType) String() string {
@@ -46,6 +47,7 @@ func (tt TokenType) String() string {
 		"SLASH",
 		"STRING",
 		"NUMBER",
+		"IDENTIFIER",
 	}[tt]
 }
 
