@@ -46,6 +46,13 @@ func (scanner *Scanner) Peek() byte {
 	return scanner.contents[scanner.current]
 }
 
+func (scanner *Scanner) PeekNext() byte {
+	if scanner.current + 1 >= len(scanner.contents) {
+		return 0
+	}
+	return scanner.contents[scanner.current + 1]
+}
+
 func (scanner *Scanner) Scan(lox_file_contents string) error {
 	scanner.contents = lox_file_contents
 	scanner.current = 0
@@ -60,27 +67,28 @@ func (scanner *Scanner) Scan(lox_file_contents string) error {
 			power.SetFloat64(1.0)
 			ten.SetFloat64(10.0)
 			float_literal.SetFloat64(float64(char - '0'))
-			has_point := false
-			for ;; scanner.Advance() {
+			for {
 				peek := scanner.Peek()
-				if peek == '.' {
-					if has_point {
-						break
-					}
-					has_point = true
-					continue
-				}
-				if peek == 0 || peek < '0' || peek > '9' {
+				if peek < '0' || peek > '9' {
 					break
 				}
 				digit.SetFloat64(float64(peek - '0'))
-				if has_point {
+				tmp.Mul(&float_literal, &ten)
+				float_literal.Add(&tmp, &digit)
+				scanner.Advance()
+			}
+			if scanner.Peek() == '.' && scanner.PeekNext() >= '0' && scanner.PeekNext() <= '9' {
+				scanner.Advance()
+				for {
+					peek := scanner.Peek()
+					if peek < '0' || peek > '9' {
+						break
+					}
+					digit.SetFloat64(float64(peek - '0'))
 					power.Quo(&power, &ten)
 					tmp.Mul(&power, &digit)
 					float_literal.Add(&float_literal, &tmp)
-				} else {
-					tmp.Mul(&float_literal, &ten)
-					float_literal.Add(&tmp, &digit)
+					scanner.Advance()
 				}
 			}
 			scanner.AddToken(NUMBER, scanner.contents[start:scanner.current], float_literal)
