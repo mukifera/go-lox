@@ -5,20 +5,7 @@ import (
 	"os"
 )
 
-func main() {
-
-	if len(os.Args) < 3 {
-		fmt.Fprintln(os.Stderr, "Usage: ./your_program.sh tokenize <filename>")
-		os.Exit(1)
-	}
-
-	command := os.Args[1]
-
-	if command != "tokenize" {
-		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
-		os.Exit(1)
-	}
-
+func handleTokenize() {
 	filename := os.Args[2]
 	fileContents, err := os.ReadFile(filename)
 	if err != nil {
@@ -32,4 +19,39 @@ func main() {
 	if err != nil {
 		os.Exit(65)
 	}
+}
+
+func handleParse() {
+	filename := os.Args[2]
+	fileContents, err := os.ReadFile(filename)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
+		os.Exit(1)
+	}
+	scanner := NewScanner(string(fileContents))
+	err = scanner.Scan()
+	if err != nil {
+		os.Exit(65)
+	}
+	Parse(scanner.tokens)
+}
+
+func main() {
+
+	if len(os.Args) < 3 {
+		fmt.Fprintln(os.Stderr, "Usage: ./your_program.sh tokenize <filename>")
+		os.Exit(1)
+	}
+
+	command := os.Args[1]
+
+	switch command {
+	case "tokenize": handleTokenize(); break;
+	case "parse": handleParse(); break;
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
+		os.Exit(1)
+	}
+
+	
 }
