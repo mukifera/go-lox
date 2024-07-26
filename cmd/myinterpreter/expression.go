@@ -65,6 +65,8 @@ func (o *Operator) StringSymbol() string {
 	case OperatorEnum.LESS_EQUAL: return "<="
 	case OperatorEnum.GREATER: return ">"
 	case OperatorEnum.GREATER_EQUAL: return ">="
+	case OperatorEnum.EQUAL_EQUAL: return "=="
+	case OperatorEnum.BANG_EQUAL: return "!="
 	}
 	return ""
 }

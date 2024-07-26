@@ -69,7 +69,7 @@ func (parser *Parser) ParseOneExpression() Expression {
 		expr.literal = nil
 		parser.Advance()
 		break
-	case STAR, SLASH, PLUS, MINUS, LESS, LESS_EQUAL, GREATER, GREATER_EQUAL:
+	case STAR, SLASH, PLUS, MINUS, LESS, LESS_EQUAL, GREATER, GREATER_EQUAL, EQUAL_EQUAL, BANG_EQUAL:
 		expr.expression_type = ExpressionTypeEnum.BINARY
 		expr.operator = OperatorEnum.STAR
 		if token.token_type == SLASH {
@@ -86,6 +86,10 @@ func (parser *Parser) ParseOneExpression() Expression {
 			expr.operator = OperatorEnum.GREATER
 		} else if token.token_type == GREATER_EQUAL {
 			expr.operator = OperatorEnum.GREATER_EQUAL
+		} else if token.token_type == EQUAL_EQUAL {
+			expr.operator = OperatorEnum.EQUAL_EQUAL
+		} else if token.token_type == BANG_EQUAL {
+			expr.operator = OperatorEnum.BANG_EQUAL
 		}
 		expr.literal = nil
 		parser.Advance()
@@ -181,6 +185,30 @@ func (parser *Parser) ParseExpressions() []Expression {
 			expr.operator != OperatorEnum.LESS_EQUAL &&
 			expr.operator != OperatorEnum.GREATER &&
 			expr.operator != OperatorEnum.GREATER_EQUAL {
+				continue
+		}
+		if i == 0 {
+			fmt.Fprintf(os.Stderr, "Error: Expected an expression before binary operator %s.\n", parser.Peek().StringLiteral())
+			parser.has_error = true
+			break
+		}
+		if i + 1 >= len(expressions) {
+			fmt.Fprintf(os.Stderr, "Error: Expected an expression after binary operator %s.\n", parser.Peek().StringLiteral())
+			parser.has_error = true
+			break
+		}
+		expr.children = append(expr.children, expressions[i-1], expressions[i+1])
+		suffix := expressions[i+2:]
+		expressions = append(expressions[:i-1], expr)
+		expressions = append(expressions, suffix...)
+		i -= 1
+	}
+
+	for i := 0; i < len(expressions); i++ {
+		expr := expressions[i]
+		if expr.expression_type != ExpressionTypeEnum.BINARY { continue }
+		if expr.operator != OperatorEnum.EQUAL_EQUAL &&
+			expr.operator != OperatorEnum.BANG_EQUAL {
 				continue
 		}
 		if i == 0 {
