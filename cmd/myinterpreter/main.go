@@ -35,7 +35,10 @@ func handleParse() {
 	}
 
 	parser := NewParser(scanner.tokens)
-	parser.Parse()
+	err = parser.Parse()
+	if err != nil {
+		os.Exit(65)
+	}
 	fmt.Println(parser.StringifyExpressions())
 }
 

@@ -1,5 +1,11 @@
 package main
 
+import (
+	"fmt"
+	"math/big"
+	"strings"
+)
+
 type ExpressionType int
 
 var ExpressionTypeEnum = struct {
@@ -49,4 +55,36 @@ type Expression struct {
 	operator Operator
 	literal interface{}
 	children []Expression
+}
+
+func (e *Expression) String() string {
+	switch e.expression_type {
+	case ExpressionTypeEnum.LITERAL:
+		return e.StringLiteral()
+	case ExpressionTypeEnum.GROUPING:
+		return fmt.Sprintf("(group %s)", e.children[0].String())
+	}
+	return ""
+}
+
+func (e *Expression) StringLiteral() string {
+	formatted := ""
+	switch t := e.literal.(type) {
+	case int: return fmt.Sprintf("%d", t);
+	case string: return t;
+	case big.Float:
+		formatted := t.String()
+		if !strings.Contains(formatted, ".") {
+			formatted += ".0"
+		}
+		return formatted
+	case bool:
+		if t {
+			formatted += "true"
+		} else {
+			formatted += "false"
+		}
+		return formatted
+	}
+	return "nil"
 }

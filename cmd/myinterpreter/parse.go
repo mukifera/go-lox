@@ -1,77 +1,108 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"math/big"
-	"strings"
+	"os"
 )
 
 type Parser struct {
+	current int
+	has_error bool
+
 	tokens []Token
 	expressions []Expression
 }
 
 func NewParser(tokens []Token) *Parser {
 	var parser Parser
+	parser.current = 0
+	parser.has_error = false
 	parser.tokens = tokens
 	return &parser
 }
 
-func (parser *Parser) Parse() {
-	for _, token := range parser.tokens {
+func (parser *Parser) ParseExpressions() []Expression {
+	var expressions []Expression
+	for {
+		if parser.AtEnd() { break; }
 		var expr Expression
+		token := parser.Peek()
 		switch token.token_type {
-		case EOF: continue;
+		case EOF, RIGHT_PAREN: return expressions
+		case LEFT_PAREN:
+			parser.Advance()
+			expr.expression_type = ExpressionTypeEnum.GROUPING
+			group := parser.ParseExpressions()
+			if parser.Peek().token_type != RIGHT_PAREN {
+				fmt.Fprintf(os.Stderr, "Error: Unmatched parentheses.\n")
+				parser.has_error = true
+				break
+			}
+			parser.Advance()
+			expr.children = group
+			break
 		case TRUE:
 			expr.expression_type = ExpressionTypeEnum.LITERAL;
-			expr.literal = true;
-			break;
+			expr.literal = true
+			parser.Advance()
+			break
 		case FALSE:
 			expr.expression_type = ExpressionTypeEnum.LITERAL;
-			expr.literal = false;
-			break;
+			expr.literal = false
+			parser.Advance()
+			break
 		case NIL:
 			expr.expression_type = ExpressionTypeEnum.LITERAL;
-			expr.literal = nil;
-			break;
+			expr.literal = nil
+			parser.Advance()
+			break
 		case NUMBER, STRING:
-			expr.expression_type = ExpressionTypeEnum.LITERAL;
-			expr.literal = token.literal;
-			break;
+			expr.expression_type = ExpressionTypeEnum.LITERAL
+			expr.literal = token.literal
+			parser.Advance()
+			break
 		}
-		parser.expressions = append(parser.expressions, expr)
+		expressions = append(expressions, expr)
 	}
+	return expressions
 }
 
-func StringLiteral(literal interface{}) string {
-	formatted := ""
-	switch t := literal.(type) {
-	case int: return fmt.Sprintf("%d", t);
-	case string: return t;
-	case big.Float:
-		formatted := t.String()
-		if !strings.Contains(formatted, ".") {
-			formatted += ".0"
-		}
-		return formatted
-	case bool:
-		if t {
-			formatted += "true"
-		} else {
-			formatted += "false"
-		}
-		return formatted
+func (parser *Parser) Parse() error {
+	parser.expressions = parser.ParseExpressions()
+	if parser.Peek().token_type != EOF {
+		fmt.Fprintf(os.Stderr, "Error: Unmatched parentheses.\n")
+		parser.has_error = true
 	}
-	return "nil"
+	if parser.has_error {
+		return errors.New("Error parsing tokens")
+	}
+	return nil
+}
+
+func (parser *Parser) Advance() Token {
+	token := parser.tokens[parser.current]
+	parser.current += 1
+	return token
+}
+
+func (parser *Parser) Peek() Token {
+	if parser.AtEnd() {
+		var token Token
+		token.token_type = EOF
+		return token
+	}
+	return parser.tokens[parser.current]
+}
+
+func (parser *Parser) AtEnd() bool {
+	return parser.current >= len(parser.tokens) || parser.tokens[parser.current].token_type == EOF
 }
 
 func (parser *Parser) StringifyExpressions() string {
 	str := ""
 	for _, expr := range parser.expressions {
-		switch expr.expression_type {
-		case ExpressionTypeEnum.LITERAL:
-			str += StringLiteral(expr.literal)
-		}
+		str += expr.String()
 	}
 	return str
 }
