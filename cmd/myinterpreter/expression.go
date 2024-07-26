@@ -9,20 +9,23 @@ import (
 type ExpressionType int
 
 var ExpressionTypeEnum = struct {
-	LITERAL 	ExpressionType
-	UNARY			ExpressionType
-	BINARY		ExpressionType
-	GROUPING	ExpressionType
+	UNDEFINED  ExpressionType
+	LITERAL 	 ExpressionType
+	UNARY			 ExpressionType
+	BINARY		 ExpressionType
+	GROUPING	 ExpressionType
 }{
-	LITERAL:	0,
-	UNARY:		1,
-	BINARY:		2,
-	GROUPING:	3,
+	UNDEFINED: 0,
+	LITERAL:	 1,
+	UNARY:		 2,
+	BINARY:		 3,
+	GROUPING:	 4,
 }
 
 type Operator int
 
 var OperatorEnum = struct {
+	UNDEFINED				Operator
 	MINUS 					Operator
 	PLUS 						Operator
 	STAR 						Operator
@@ -36,18 +39,27 @@ var OperatorEnum = struct {
 	GREATER_EQUAL 	Operator
 	SLASH 					Operator
 }{
-	MINUS:					0,
-	PLUS:						1,
-	STAR:						2,
-	EQUAL:					3,
-	EQUAL_EQUAL:		4,
-	BANG:						5,
-	BANG_EQUAL:			6,
-	LESS:						7,
-	LESS_EQUAL:			8,
-	GREATER:				9,
-	GREATER_EQUAL:	10,
-	SLASH:					11,
+	UNDEFINED:			0,
+	MINUS:					1,
+	PLUS:						2,
+	STAR:						3,
+	EQUAL:					4,
+	EQUAL_EQUAL:		5,
+	BANG:						6,
+	BANG_EQUAL:			7,
+	LESS:						8,
+	LESS_EQUAL:			9,
+	GREATER:				10,
+	GREATER_EQUAL:	11,
+	SLASH:					12,
+}
+
+func (o *Operator) StringSymbol() string {
+	switch *o {
+	case OperatorEnum.BANG: return "!"
+	case OperatorEnum.MINUS: return "-"
+	}
+	return ""
 }
 
 type Expression struct {
@@ -63,6 +75,8 @@ func (e *Expression) String() string {
 		return e.StringLiteral()
 	case ExpressionTypeEnum.GROUPING:
 		return fmt.Sprintf("(group %s)", e.children[0].String())
+	case ExpressionTypeEnum.UNARY:
+		return fmt.Sprintf("(%s %s)", e.operator.StringSymbol(), e.children[0].String())
 	}
 	return ""
 }
