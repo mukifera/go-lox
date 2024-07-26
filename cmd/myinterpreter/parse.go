@@ -40,6 +40,11 @@ func (parser *Parser) ParseExpressions() []Expression {
 				break
 			}
 			parser.Advance()
+			if len(group) == 0 {
+				fmt.Fprintf(os.Stderr, "Error: Parentheses contain no expression.\n")
+				parser.has_error = true
+				break
+			}
 			expr.children = group
 			break
 		case TRUE:
