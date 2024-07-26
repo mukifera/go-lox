@@ -112,7 +112,7 @@ func (parser *Parser) ParseExpressions() []Expression {
 		}
 	}
 
-	for i := 0; i < len(expressions); i++ {
+	for i := len(expressions) - 1; i >= 0; i-- {
 		if expressions[i].expression_type == ExpressionTypeEnum.UNARY {
 			if i + 1 >= len(expressions) {
 				fmt.Fprintf(os.Stderr, "Error: Expected an expression after unary operator %s.\n", parser.Peek().StringLiteral())
