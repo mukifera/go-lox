@@ -98,6 +98,42 @@ func (parser *Parser) ParseOneExpression() Expression {
 	return expr
 }
 
+func (parser *Parser) UpdateBinaryExpressions(expressions []Expression, operators []Operator) []Expression {
+	var ret []Expression
+	for i := 0; i < len(expressions); i++ {
+		expr := expressions[i]
+		if expr.expression_type != ExpressionTypeEnum.BINARY {
+			ret = append(ret, expr)
+			continue
+		}
+		found := false
+		for _, operator := range operators {
+			if expr.operator == operator {
+				found = true
+				break
+			}
+		}
+		if !found {
+			ret = append(ret, expr)
+			continue
+		}
+		if len(ret) == 0 {
+			fmt.Fprintf(os.Stderr, "Error: Expected an expression before binary operator %s.\n", parser.Peek().StringLiteral())
+			parser.has_error = true
+			break
+		}
+		if i + 1 >= len(expressions) {
+			fmt.Fprintf(os.Stderr, "Error: Expected an expression after binary operator %s.\n", parser.Peek().StringLiteral())
+			parser.has_error = true
+			break
+		}
+		expr.children = append(expr.children, ret[len(ret)-1], expressions[i+1])
+		ret[len(ret) - 1] = expr
+		i += 1
+	}
+	return ret
+}
+
 func (parser *Parser) ParseExpressions() []Expression {
 	var expressions []Expression
 	for {
@@ -136,97 +172,10 @@ func (parser *Parser) ParseExpressions() []Expression {
 		}
 	}
 
-	for i := 0; i < len(expressions); i++ {
-		expr := expressions[i]
-		if expr.expression_type != ExpressionTypeEnum.BINARY { continue }
-		if expr.operator != OperatorEnum.STAR && expr.operator != OperatorEnum.SLASH { continue }
-		if i == 0 {
-			fmt.Fprintf(os.Stderr, "Error: Expected an expression before binary operator %s.\n", parser.Peek().StringLiteral())
-			parser.has_error = true
-			break
-		}
-		if i + 1 >= len(expressions) {
-			fmt.Fprintf(os.Stderr, "Error: Expected an expression after binary operator %s.\n", parser.Peek().StringLiteral())
-			parser.has_error = true
-			break
-		}
-		expr.children = append(expr.children, expressions[i-1], expressions[i+1])
-		suffix := expressions[i+2:]
-		expressions = append(expressions[:i-1], expr)
-		expressions = append(expressions, suffix...)
-		i -= 1
-	}
-
-	for i := 0; i < len(expressions); i++ {
-		expr := expressions[i]
-		if expr.expression_type != ExpressionTypeEnum.BINARY { continue }
-		if expr.operator != OperatorEnum.PLUS && expr.operator != OperatorEnum.MINUS { continue }
-		if i == 0 {
-			fmt.Fprintf(os.Stderr, "Error: Expected an expression before binary operator %s.\n", parser.Peek().StringLiteral())
-			parser.has_error = true
-			break
-		}
-		if i + 1 >= len(expressions) {
-			fmt.Fprintf(os.Stderr, "Error: Expected an expression after binary operator %s.\n", parser.Peek().StringLiteral())
-			parser.has_error = true
-			break
-		}
-		expr.children = append(expr.children, expressions[i-1], expressions[i+1])
-		suffix := expressions[i+2:]
-		expressions = append(expressions[:i-1], expr)
-		expressions = append(expressions, suffix...)
-		i -= 1
-	}
-
-	for i := 0; i < len(expressions); i++ {
-		expr := expressions[i]
-		if expr.expression_type != ExpressionTypeEnum.BINARY { continue }
-		if expr.operator != OperatorEnum.LESS &&
-			expr.operator != OperatorEnum.LESS_EQUAL &&
-			expr.operator != OperatorEnum.GREATER &&
-			expr.operator != OperatorEnum.GREATER_EQUAL {
-				continue
-		}
-		if i == 0 {
-			fmt.Fprintf(os.Stderr, "Error: Expected an expression before binary operator %s.\n", parser.Peek().StringLiteral())
-			parser.has_error = true
-			break
-		}
-		if i + 1 >= len(expressions) {
-			fmt.Fprintf(os.Stderr, "Error: Expected an expression after binary operator %s.\n", parser.Peek().StringLiteral())
-			parser.has_error = true
-			break
-		}
-		expr.children = append(expr.children, expressions[i-1], expressions[i+1])
-		suffix := expressions[i+2:]
-		expressions = append(expressions[:i-1], expr)
-		expressions = append(expressions, suffix...)
-		i -= 1
-	}
-
-	for i := 0; i < len(expressions); i++ {
-		expr := expressions[i]
-		if expr.expression_type != ExpressionTypeEnum.BINARY { continue }
-		if expr.operator != OperatorEnum.EQUAL_EQUAL &&
-			expr.operator != OperatorEnum.BANG_EQUAL {
-				continue
-		}
-		if i == 0 {
-			fmt.Fprintf(os.Stderr, "Error: Expected an expression before binary operator %s.\n", parser.Peek().StringLiteral())
-			parser.has_error = true
-			break
-		}
-		if i + 1 >= len(expressions) {
-			fmt.Fprintf(os.Stderr, "Error: Expected an expression after binary operator %s.\n", parser.Peek().StringLiteral())
-			parser.has_error = true
-			break
-		}
-		expr.children = append(expr.children, expressions[i-1], expressions[i+1])
-		suffix := expressions[i+2:]
-		expressions = append(expressions[:i-1], expr)
-		expressions = append(expressions, suffix...)
-		i -= 1
-	}
+	expressions = parser.UpdateBinaryExpressions(expressions, []Operator{OperatorEnum.STAR, OperatorEnum.SLASH})
+	expressions = parser.UpdateBinaryExpressions(expressions, []Operator{OperatorEnum.PLUS, OperatorEnum.MINUS})
+	expressions = parser.UpdateBinaryExpressions(expressions, []Operator{OperatorEnum.LESS, OperatorEnum.LESS_EQUAL, OperatorEnum.GREATER, OperatorEnum.GREATER_EQUAL})
+	expressions = parser.UpdateBinaryExpressions(expressions, []Operator{OperatorEnum.EQUAL_EQUAL, OperatorEnum.BANG_EQUAL})
 	
 	return expressions
 }
