@@ -58,6 +58,8 @@ func (o *Operator) StringSymbol() string {
 	switch *o {
 	case OperatorEnum.BANG: return "!"
 	case OperatorEnum.MINUS: return "-"
+	case OperatorEnum.STAR: return "*"
+	case OperatorEnum.SLASH: return "/"
 	}
 	return ""
 }
@@ -77,6 +79,8 @@ func (e *Expression) String() string {
 		return fmt.Sprintf("(group %s)", e.children[0].String())
 	case ExpressionTypeEnum.UNARY:
 		return fmt.Sprintf("(%s %s)", e.operator.StringSymbol(), e.children[0].String())
+	case ExpressionTypeEnum.BINARY:
+		return fmt.Sprintf("(%s %s %s)", e.operator.StringSymbol(), e.children[0].String(), e.children[1].String())
 	}
 	return ""
 }
