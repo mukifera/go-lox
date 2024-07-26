@@ -97,6 +97,10 @@ func (parser *Parser) ParseExpressions() []Expression {
 		expressions = append(expressions, expr)
 	}
 
+	if len(expressions) > 0 &&
+		expressions[0].operator == OperatorEnum.MINUS {
+			expressions[0].expression_type = ExpressionTypeEnum.UNARY
+	}
 	for i := 0; i + 1 < len(expressions); i++ {
 		current_type := expressions[i].expression_type
 		next_type := expressions[i+1].expression_type
