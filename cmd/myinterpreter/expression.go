@@ -60,6 +60,7 @@ func (o *Operator) StringSymbol() string {
 	case OperatorEnum.MINUS: return "-"
 	case OperatorEnum.STAR: return "*"
 	case OperatorEnum.SLASH: return "/"
+	case OperatorEnum.PLUS: return "+"
 	}
 	return ""
 }
