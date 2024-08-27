@@ -1,4 +1,4 @@
-An interperter for the lox programming language, written in Go.
+An interperter for the [Lox](https://craftinginterpreters.com/the-lox-language.html) programming language, written in Go.
 
 Currently suppports tokenization and parsing.
 
