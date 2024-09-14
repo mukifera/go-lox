@@ -18,6 +18,7 @@ func TestTokenization(t *testing.T) {
 		{"Comments", "() // Comment", "LEFT_PAREN ( null\nRIGHT_PAREN ) null\nEOF  null"},
 		{"Division Operator", "/()", "SLASH / null\nLEFT_PAREN ( null\nRIGHT_PAREN ) null\nEOF  null"},
 		{"Whitespaces", "(\t )", "LEFT_PAREN ( null\nRIGHT_PAREN ) null\nEOF  null"},
+		{"String Literals", "\"foo baz\"", "STRING \"foo baz\" foo baz\nEOF  null"},
 	}
 
 	for _, tt := range tests {
