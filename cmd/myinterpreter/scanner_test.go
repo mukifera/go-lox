@@ -30,7 +30,7 @@ func TestTokenization(t *testing.T) {
 
 			err := scanner.Scan()
 			if err != nil {
-				t.Errorf("Error building Scanner")
+				t.Errorf("Scanner: tokenizing error: %v", err)
 			}
 
 			actual := scanner.StringifyTokens()
