@@ -14,6 +14,7 @@ func TestTokenization(t *testing.T) {
 		{"Single Character Tokens", "({*.,+*});", "LEFT_PAREN ( null\nLEFT_BRACE { null\nSTAR * null\nDOT . null\nCOMMA , null\nPLUS + null\nSTAR * null\nRIGHT_BRACE } null\nRIGHT_PAREN ) null\nSEMICOLON ; null\nEOF  null"},
 		{"Assignment And Equality", "={===}", "EQUAL = null\nLEFT_BRACE { null\nEQUAL_EQUAL == null\nEQUAL = null\nRIGHT_BRACE } null\nEOF  null"},
 		{"Negation And Inequality", "!!===", "BANG ! null\nBANG_EQUAL != null\nEQUAL_EQUAL == null\nEOF  null"},
+		{"Relational Operators", "<<=>>=", "LESS < null\nLESS_EQUAL <= null\nGREATER > null\nGREATER_EQUAL >= null\nEOF  null"},
 	}
 
 	for _, tt := range tests {
