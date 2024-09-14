@@ -16,6 +16,8 @@ func TestExpressionParsing(t *testing.T) {
 		{"Parentheses", "(\"foo\")", "(group foo)"},
 		{"Unary/Negation", "-5", "(- 5.0)"},
 		{"Unary/Not", "!true", "(! true)"},
+		{"Arithmetic/Multiplication And Division", "16 * 38 / 58", "(/ (* 16.0 38.0) 58.0)"},
+		{"Arithmetic/Addtion And Subtraction", "52 + 80 - 94", "(- (+ 52.0 80.0) 94.0)"},
 	}
 
 	for _, tt := range tests {
