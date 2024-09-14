@@ -20,6 +20,7 @@ func TestTokenization(t *testing.T) {
 		{"Whitespaces", "(\t )", "LEFT_PAREN ( null\nRIGHT_PAREN ) null\nEOF  null"},
 		{"String Literals", "\"foo baz\"", "STRING \"foo baz\" foo baz\nEOF  null"},
 		{"Number Literals", "42 1234.1234", "NUMBER 42 42.0\nNUMBER 1234.1234 1234.1234\nEOF  null"},
+		{"Identifiers", "foo bar _hello", "IDENTIFIER foo null\nIDENTIFIER bar null\nIDENTIFIER _hello null\nEOF  null"},
 	}
 
 	for _, tt := range tests {
