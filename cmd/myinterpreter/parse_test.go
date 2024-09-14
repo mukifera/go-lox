@@ -12,6 +12,7 @@ func TestExpressionParsing(t *testing.T) {
 		{"Booleans/false", "false", "false"},
 		{"Nil", "nil", "nil"},
 		{"Number Literals", "42.47", "42.47"},
+		{"String Literals", "\"hello\"", "hello"},
 	}
 
 	for _, tt := range tests {
