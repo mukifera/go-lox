@@ -19,6 +19,7 @@ func TestExpressionParsing(t *testing.T) {
 		{"Arithmetic/Multiplication And Division", "16 * 38 / 58", "(/ (* 16.0 38.0) 58.0)"},
 		{"Arithmetic/Addtion And Subtraction", "52 + 80 - 94", "(- (+ 52.0 80.0) 94.0)"},
 		{"Comparision Operators", "83 < 99 > 115 <= 11 >= 1", "(>= (<= (> (< 83.0 99.0) 115.0) 11.0) 1.0)"},
+		{"Equality Operators", `"baz" == "baz" != "bar"`, "(!= (== baz baz) bar)"},
 	}
 
 	for _, tt := range tests {
