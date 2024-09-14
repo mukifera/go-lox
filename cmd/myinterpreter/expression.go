@@ -78,6 +78,51 @@ type Expression struct {
 	children []Expression
 }
 
+func NewBinaryExpression(left Expression, right Expression, operator Operator) Expression {
+	var ret Expression
+	ret.expression_type = ExpressionTypeEnum.BINARY
+	ret.operator = operator
+	ret.literal = nil
+	ret.children = []Expression{ left, right }
+	return ret
+}
+
+func NewUnaryExpression(expr Expression, operator Operator) Expression {
+	var ret Expression
+	ret.expression_type = ExpressionTypeEnum.UNARY
+	ret.operator = operator
+	ret.literal = nil
+	ret.children = []Expression{ expr }
+	return ret
+}
+
+func NewLiteralExpression(literal interface{}) Expression {
+	var ret Expression
+	ret.expression_type = ExpressionTypeEnum.LITERAL
+	ret.operator = OperatorEnum.UNDEFINED
+	ret.literal = literal
+	ret.children = []Expression{}
+	return ret
+}
+
+func NewGroupingExpression(children ...Expression) Expression {
+	var ret Expression
+	ret.expression_type = ExpressionTypeEnum.GROUPING
+	ret.operator = OperatorEnum.UNDEFINED
+	ret.literal = nil
+	ret.children = children
+	return ret
+}
+
+func NewUndefinedExpression() Expression {
+	var ret Expression
+	ret.expression_type = ExpressionTypeEnum.UNDEFINED
+	ret.operator = OperatorEnum.UNDEFINED
+	ret.literal = nil
+	ret.children = []Expression{}
+	return ret
+}
+
 func (e *Expression) String() string {
 	switch e.expression_type {
 	case ExpressionTypeEnum.LITERAL:
