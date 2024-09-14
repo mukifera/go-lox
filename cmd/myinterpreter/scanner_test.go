@@ -17,6 +17,7 @@ func TestTokenization(t *testing.T) {
 		{"Relational Operators", "<<=>>=", "LESS < null\nLESS_EQUAL <= null\nGREATER > null\nGREATER_EQUAL >= null\nEOF  null"},
 		{"Comments", "() // Comment", "LEFT_PAREN ( null\nRIGHT_PAREN ) null\nEOF  null"},
 		{"Division Operator", "/()", "SLASH / null\nLEFT_PAREN ( null\nRIGHT_PAREN ) null\nEOF  null"},
+		{"Whitespaces", "(\t )", "LEFT_PAREN ( null\nRIGHT_PAREN ) null\nEOF  null"},
 	}
 
 	for _, tt := range tests {
