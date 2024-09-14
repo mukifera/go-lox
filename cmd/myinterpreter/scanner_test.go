@@ -2,29 +2,37 @@ package main
 
 import (
 	"os"
-	"fmt"
 	"testing"
 )
 
-func hookupScanner(filename string) *Scanner {
-	fileContents, err := os.ReadFile(filename)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
-		os.Exit(1)
+func TestTokenization(t *testing.T) {
+	tests := []struct {
+		name string
+		filename string
+		expected string
+	}{
+		{"Empty", "empty.lox", "EOF  null"},
+		{"Parentheses", "parentheses.lox", "LEFT_PAREN ( null\nLEFT_PAREN ( null\nRIGHT_PAREN ) null\nEOF  null"},
 	}
 
-	return NewScanner(string(fileContents))
-}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 
-func TestScanEmpty(t *testing.T) {
-	scanner := hookupScanner("test_files/empty.lox")
-	err := scanner.Scan()
-	if err != nil {
-		t.Errorf("Error building Scanner")
-	}
-	actual := scanner.StringifyTokens()
-	expected := "EOF  null"
-	if actual != expected {
-		t.Errorf("Tokenization result is incorrect\nGot: %s\nExpected: %s", actual, expected)
+			fileContents, err := os.ReadFile("test_files/" + tt.filename)
+			if err != nil {
+				t.Errorf("Error reading file: %v\n", err)
+			}
+			scanner := NewScanner(string(fileContents))
+
+			err = scanner.Scan()
+			if err != nil {
+				t.Errorf("Error building Scanner")
+			}
+
+			actual := scanner.StringifyTokens()
+			if actual != tt.expected {
+				t.Errorf("Tokenization result is incorrect\nExpected:\n\n%s\n\nGot:\n\n%s", tt.expected, actual)
+			}
+		})
 	}
 }
