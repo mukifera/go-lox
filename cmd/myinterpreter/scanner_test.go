@@ -1,30 +1,23 @@
 package main
 
-import (
-	"os"
-	"testing"
-)
+import "testing"
 
 func TestTokenization(t *testing.T) {
 	tests := []struct {
 		name string
-		filename string
+		fileContents string
 		expected string
 	}{
-		{"Empty", "empty.lox", "EOF  null"},
-		{"Parentheses", "parentheses.lox", "LEFT_PAREN ( null\nLEFT_PAREN ( null\nRIGHT_PAREN ) null\nEOF  null"},
+		{"Empty", "", "EOF  null"},
+		{"Parentheses", "(()", "LEFT_PAREN ( null\nLEFT_PAREN ( null\nRIGHT_PAREN ) null\nEOF  null"},
+		{"Braces", "{{}}", "LEFT_BRACE { null\nLEFT_BRACE { null\nRIGHT_BRACE } null\nRIGHT_BRACE } null\nEOF  null"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			scanner := NewScanner(tt.fileContents)
 
-			fileContents, err := os.ReadFile("test_files/" + tt.filename)
-			if err != nil {
-				t.Errorf("Error reading file: %v\n", err)
-			}
-			scanner := NewScanner(string(fileContents))
-
-			err = scanner.Scan()
+			err := scanner.Scan()
 			if err != nil {
 				t.Errorf("Error building Scanner")
 			}
