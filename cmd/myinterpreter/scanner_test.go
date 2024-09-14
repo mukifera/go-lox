@@ -19,7 +19,7 @@ func TestTokenization(t *testing.T) {
 		{"Division Operator", "/()", "SLASH / null\nLEFT_PAREN ( null\nRIGHT_PAREN ) null\nEOF  null"},
 		{"Whitespaces", "(\t )", "LEFT_PAREN ( null\nRIGHT_PAREN ) null\nEOF  null"},
 		{"String Literals", "\"foo baz\"", "STRING \"foo baz\" foo baz\nEOF  null"},
-		{"Number Literals", "42", "NUMBER 42 42.0\nEOF  null"},
+		{"Number Literals", "42 1234.1234", "NUMBER 42 42.0\nNUMBER 1234.1234 1234.1234\nEOF  null"},
 	}
 
 	for _, tt := range tests {
