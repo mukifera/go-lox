@@ -41,10 +41,10 @@ func setupEvaluator() *Evaluator {
 func handleTokenize() {
 	scanner := setupScanner()
 	err := scanner.Scan()
+	fmt.Println(scanner.StringifyTokens())
 	if err != nil {
 		os.Exit(65)
 	}
-	fmt.Println(scanner.StringifyTokens())
 }
 
 func handleParse() {
