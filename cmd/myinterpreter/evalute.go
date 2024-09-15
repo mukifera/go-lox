@@ -29,6 +29,8 @@ func (evaluator *Evaluator) evaluateExpression(expression Expression) interface{
 	switch expression.expression_type {
 	case ExpressionTypeEnum.LITERAL:
 		return expression.literal
+	case ExpressionTypeEnum.GROUPING:
+		return evaluator.evaluateExpression(expression.children[0])
 	}
 	return nil
 }

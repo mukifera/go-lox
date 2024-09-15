@@ -13,6 +13,10 @@ func TestEvaluation(t *testing.T) {
 		{"Literals: nil", "nil", []string{"nil"}},
 		{"Literals: Number #1", "10.40", []string{"10.4"}},
 		{"Literals: Number #2", "10", []string{"10"}},
+		{"Parentheses #1", `("hello world!")`, []string{"hello world!"}},
+		{"Parentheses #2", "(true)", []string{"true"}},
+		{"Parentheses #3", "(10.40)", []string{"10.4"}},
+		{"Parentheses #4", "((false))", []string{"false"}},
 	}
 
 	for _, tt := range tests {
