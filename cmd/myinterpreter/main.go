@@ -5,41 +5,67 @@ import (
 	"os"
 )
 
-func handleTokenize() {
+func readFile() []byte {
 	filename := os.Args[2]
 	fileContents, err := os.ReadFile(filename)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
 		os.Exit(1)
 	}
+	return fileContents
+}
 
-	scanner := NewScanner(string(fileContents))
-	err = scanner.Scan()
-	fmt.Println(scanner.StringifyTokens())
+func setupScanner() *Scanner {
+	fileContents := readFile()
+	return NewScanner(string(fileContents))
+}
+
+func setupParser() *Parser {
+	scanner := setupScanner()
+	err := scanner.Scan()
 	if err != nil {
 		os.Exit(65)
 	}
+	return NewParser(scanner.tokens)
+}
+
+func setupEvaluator() *Evaluator {
+	parser := setupParser()
+	err := parser.Parse()
+	if err != nil {
+		os.Exit(65)
+	}
+	return NewEvaluator(parser.expressions)
+}
+
+func handleTokenize() {
+	scanner := setupScanner()
+	err := scanner.Scan()
+	if err != nil {
+		os.Exit(65)
+	}
+	fmt.Println(scanner.StringifyTokens())
 }
 
 func handleParse() {
-	filename := os.Args[2]
-	fileContents, err := os.ReadFile(filename)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
-		os.Exit(1)
-	}
-	scanner := NewScanner(string(fileContents))
-	err = scanner.Scan()
-	if err != nil {
-		os.Exit(65)
-	}
-
-	parser := NewParser(scanner.tokens)
-	err = parser.Parse()
+	parser := setupParser()
+	err := parser.Parse()
 	if err != nil {
 		os.Exit(65)
 	}
 	fmt.Println(parser.StringifyExpressions())
+}
+
+func handleEvaluate() {
+	evaluator := setupEvaluator()
+	values := evaluator.Evaluate()
+	for _, value := range values {
+		if value == nil {
+			fmt.Println("nil")
+			continue
+		}
+		fmt.Printf("%v\n", value)
+	}
 }
 
 func main() {
@@ -54,6 +80,7 @@ func main() {
 	switch command {
 	case "tokenize": handleTokenize(); break;
 	case "parse": handleParse(); break;
+	case "evaluate": handleEvaluate(); break;
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
 		os.Exit(1)
