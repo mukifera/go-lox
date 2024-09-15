@@ -58,13 +58,10 @@ func handleParse() {
 
 func handleEvaluate() {
 	evaluator := setupEvaluator()
-	values := evaluator.Evaluate()
-	for _, value := range values {
-		if value == nil {
-			fmt.Println("nil")
-			continue
-		}
-		fmt.Printf("%v\n", value)
+	evaluator.Evaluate()
+	strs := evaluator.StringifyValues()
+	for _, str := range strs {
+		fmt.Println(str)
 	}
 }
 
