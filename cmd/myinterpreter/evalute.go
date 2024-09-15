@@ -31,8 +31,28 @@ func (evaluator *Evaluator) evaluateExpression(expression Expression) interface{
 		return expression.literal
 	case ExpressionTypeEnum.GROUPING:
 		return evaluator.evaluateExpression(expression.children[0])
+	case ExpressionTypeEnum.UNARY:
+		return evaluator.evaluateUnaryExpression(expression)
 	}
 	return nil
+}
+
+func (evaluator *Evaluator) evaluateUnaryExpression(expression Expression) interface{} {
+	value := evaluator.evaluateExpression(expression.children[0])
+	switch expression.operator {
+	case OperatorEnum.BANG:
+		value = value == false || value == nil
+	case OperatorEnum.MINUS:
+		value = *evaluator.negateValue(value)
+	}
+	return value
+}
+
+func (evaluator *Evaluator) negateValue(value interface{}) *big.Float {
+	switch literal := value.(type){
+	case big.Float: return literal.Neg(&literal)
+	default: return nil
+	}
 }
 
 func (evaluator *Evaluator) StringifyValues() []string {

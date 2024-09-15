@@ -17,6 +17,10 @@ func TestEvaluation(t *testing.T) {
 		{"Parentheses #2", "(true)", []string{"true"}},
 		{"Parentheses #3", "(10.40)", []string{"10.4"}},
 		{"Parentheses #4", "((false))", []string{"false"}},
+		{"Unary: Negation", "-73", []string{"-73"}},
+		{"Unary: Not #1", "!true", []string{"false"}},
+		{"Unary: Not #2", "!10.40", []string{"false"}},
+		{"Unary: Not #3", "!((false))", []string{"true"}},
 	}
 
 	for _, tt := range tests {
