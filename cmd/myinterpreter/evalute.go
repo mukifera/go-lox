@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"math/big"
+	"fmt"
+)
 
 type Evaluator struct {
 	expressions []Expression
@@ -34,11 +37,11 @@ func (evaluator *Evaluator) StringifyValues() []string {
 	var ret []string
 	for _, value := range evaluator.values {
 		str := ""
-		switch value.(type)	{
-		case bool:
-			str = fmt.Sprintf("%v", value)
-		case nil:
-			str = fmt.Sprintf("nil")
+		switch literal := value.(type)	{
+		case nil:		 		str = fmt.Sprintf("nil")
+		case bool:	 		str = fmt.Sprintf("%v", literal)
+		case string: 		str = fmt.Sprintf("%s", literal)
+		case big.Float: str = fmt.Sprintf("%s", literal.String())
 		}
 		ret = append(ret, str)
 	}

@@ -10,7 +10,9 @@ func TestEvaluation(t *testing.T) {
 	}{
 		{"Literals: Boolean/true", "true", []string{"true"}},
 		{"Literals: Boolean/false", "false", []string{"false"}},
-		{"Literals: Boolean/nil", "nil", []string{"nil"}},
+		{"Literals: nil", "nil", []string{"nil"}},
+		{"Literals: Number #1", "10.40", []string{"10.4"}},
+		{"Literals: Number #2", "10", []string{"10"}},
 	}
 
 	for _, tt := range tests {
