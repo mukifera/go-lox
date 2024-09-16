@@ -14,12 +14,14 @@ var ExpressionTypeEnum = struct {
 	UNARY			 ExpressionType
 	BINARY		 ExpressionType
 	GROUPING	 ExpressionType
+	BUILTIN		 ExpressionType
 }{
 	UNDEFINED: 0,
 	LITERAL:	 1,
 	UNARY:		 2,
 	BINARY:		 3,
 	GROUPING:	 4,
+	BUILTIN:	 5,
 }
 
 type Operator int
@@ -38,6 +40,7 @@ var OperatorEnum = struct {
 	GREATER 				Operator
 	GREATER_EQUAL 	Operator
 	SLASH 					Operator
+	PRINT						Operator
 }{
 	UNDEFINED:			0,
 	MINUS:					1,
@@ -52,6 +55,7 @@ var OperatorEnum = struct {
 	GREATER:				10,
 	GREATER_EQUAL:	11,
 	SLASH:					12,
+	PRINT:					13,
 }
 
 func (o *Operator) StringSymbol() string {
@@ -67,6 +71,7 @@ func (o *Operator) StringSymbol() string {
 	case OperatorEnum.GREATER_EQUAL: return ">="
 	case OperatorEnum.EQUAL_EQUAL: return "=="
 	case OperatorEnum.BANG_EQUAL: return "!="
+	case OperatorEnum.PRINT: return "print"
 	}
 	return ""
 }
@@ -120,6 +125,15 @@ func NewUndefinedExpression() Expression {
 	ret.operator = OperatorEnum.UNDEFINED
 	ret.literal = nil
 	ret.children = []Expression{}
+	return ret
+}
+
+func NewBuiltinExpression(expr Expression, operator Operator) Expression {
+	var ret Expression
+	ret.expression_type = ExpressionTypeEnum.BUILTIN
+	ret.operator = OperatorEnum.PRINT
+	ret.literal = nil
+	ret.children = []Expression{ expr }
 	return ret
 }
 

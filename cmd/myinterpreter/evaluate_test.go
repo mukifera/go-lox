@@ -2,7 +2,7 @@ package main
 
 import "testing"
 
-func hookupEvaluator(fileContents string, t *testing.T) *Evaluator {
+func getExpressions(fileContents string, t *testing.T) []Expression {
 	scanner := NewScanner(fileContents)
 	err := scanner.Scan()
 	if err != nil {
@@ -15,10 +15,7 @@ func hookupEvaluator(fileContents string, t *testing.T) *Evaluator {
 		t.Errorf("Parser: parsing error: %v", err)
 	}
 
-	evaluator := NewEvaluator(parser.expressions)
-	evaluator.Evaluate()
-
-	return evaluator
+	return parser.expressions
 }
 
 func TestEvaluation(t *testing.T) {
@@ -63,8 +60,9 @@ func TestEvaluation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			evaluator := hookupEvaluator(tt.fileContents, t)
-			actual := evaluator.StringifyValues()
+			exprs := getExpressions(tt.fileContents, t)
+			values, _ := EvaluateExpressions(exprs)
+			actual := StringifyEvaluationValues(values)
 
 			if len(tt.expected) != len(actual) {
 				t.Errorf("Evaluation result length mismatch: Expected %d outputs, got %d", len(tt.expected), len(actual))
@@ -111,10 +109,11 @@ func TestEvaluationRuntimeErrors(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			evaluator := hookupEvaluator(tt.fileContents, t)
+			exprs := getExpressions(tt.fileContents, t)
+			_, errs := EvaluateExpressions(exprs)
 			
 			var actual []string
-			for _, err := range evaluator.errors {
+			for _, err := range errs {
 				if err == nil {
 					continue
 				}

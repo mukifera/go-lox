@@ -128,6 +128,10 @@ func (parser *Parser) parsePrimary() Expression {
 	if parser.Matches(NUMBER, STRING) {
 		return NewLiteralExpression(parser.Previous().literal)
 	}
+	if parser.Matches(PRINT) {
+		expr := parser.parseExpression()
+		return NewBuiltinExpression(expr, OperatorEnum.PRINT)
+	}
 	if parser.Matches(LEFT_PAREN) {
 		expr := parser.parseExpression()
 		if !parser.Matches(RIGHT_PAREN) {

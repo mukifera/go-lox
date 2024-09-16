@@ -29,15 +29,6 @@ func setupParser() *Parser {
 	return NewParser(scanner.tokens)
 }
 
-func setupEvaluator() *Evaluator {
-	parser := setupParser()
-	err := parser.Parse()
-	if err != nil {
-		os.Exit(65)
-	}
-	return NewEvaluator(parser.expressions)
-}
-
 func handleTokenize() {
 	scanner := setupScanner()
 	err := scanner.Scan()
@@ -57,12 +48,16 @@ func handleParse() {
 }
 
 func handleEvaluate() {
-	evaluator := setupEvaluator()
-	evaluator.Evaluate()
-	strs := evaluator.StringifyValues()
+	parser := setupParser()
+	err := parser.Parse()
+	if err != nil {
+		os.Exit(65)
+	}
+
 	found_error := false
-	for index, str := range strs {
-		err := evaluator.errors[index]
+	for _, expr := range parser.expressions {
+		value, err := EvaluateExpression(expr)
+		str := StringifyEvaluationValue(value)
 		if err != nil {
 			found_error = true
 			fmt.Fprintf(os.Stderr, "%v\n", err)
@@ -70,6 +65,7 @@ func handleEvaluate() {
 			fmt.Println(str)
 		}
 	}
+
 	if found_error {
 		os.Exit(70)
 	}
