@@ -106,22 +106,22 @@ func (evaluator *Evaluator) evaluateBinaryExpression(expression Expression) (int
 		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
 			return left.Cmp(&right) == -1, nil
 		}
-		break
+		return nil, num_operation_error
 	case OperatorEnum.LESS_EQUAL:
 		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
 			return left.Cmp(&right) < 1, nil
 		}
-		break
+		return nil, num_operation_error
 	case OperatorEnum.GREATER:
 		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
 			return left.Cmp(&right) == 1, nil
 		}
-		break
+		return nil, num_operation_error
 	case OperatorEnum.GREATER_EQUAL:
 		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
 			return left.Cmp(&right) > -1, nil
 		}
-		break
+		return nil, num_operation_error
 	case OperatorEnum.EQUAL_EQUAL:
 		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
 			return left.Cmp(&right) == 0, nil
