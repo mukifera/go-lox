@@ -65,7 +65,7 @@ func handleEvaluate() {
 		err := evaluator.errors[index]
 		if err != nil {
 			found_error = true
-			fmt.Println(err)
+			fmt.Fprintf(os.Stderr, "%v\n", err)
 		} else {
 			fmt.Println(str)
 		}
