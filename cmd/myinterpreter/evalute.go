@@ -45,7 +45,10 @@ func (evaluator *Evaluator) evaluateUnaryExpression(expression Expression) inter
 	case OperatorEnum.BANG:
 		return value == false || value == nil
 	case OperatorEnum.MINUS:
-		number := evaluator.assertNumber(value)
+		number, ok := value.(big.Float)
+		if !ok {
+			break
+		}
 		return *number.Neg(&number)
 	}
 	return nil
@@ -56,31 +59,45 @@ func (evaluator *Evaluator) evaluateBinaryExpression(expression Expression) inte
 	right_value := evaluator.evaluateExpression(expression.children[1])
 	switch expression.operator {
 	case OperatorEnum.STAR:
-		left_number := evaluator.assertNumber(left_value)
-		right_number := evaluator.assertNumber(right_value)
-		return *left_number.Mul(&left_number, &right_number)
+		left, right, ok := evaluator.assertNumberOperation(left_value, right_value)
+		if !ok {
+			break
+		}
+		return *left.Mul(&left, &right)
 	case OperatorEnum.SLASH:
-		left_number := evaluator.assertNumber(left_value)
-		right_number := evaluator.assertNumber(right_value)
-		return *left_number.Quo(&left_number, &right_number)
-	case OperatorEnum.PLUS:
-		left_number := evaluator.assertNumber(left_value)
-		right_number := evaluator.assertNumber(right_value)
-		return *left_number.Add(&left_number, &right_number)
+		left, right, ok := evaluator.assertNumberOperation(left_value, right_value)
+		if !ok {
+			break
+		}
+		return *left.Quo(&left, &right)
 	case OperatorEnum.MINUS:
-		left_number := evaluator.assertNumber(left_value)
-		right_number := evaluator.assertNumber(right_value)
-		return *left_number.Sub(&left_number, &right_number)
+		left, right, ok := evaluator.assertNumberOperation(left_value, right_value)
+		if !ok {
+			break
+		}
+		return *left.Sub(&left, &right)
+	case OperatorEnum.PLUS:
+		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
+			return *left.Add(&left, &right)
+		}
+		if left, right, ok := evaluator.assertStringOperation(left_value, right_value); ok {
+			return left + right
+		}
+		break
 	}
 	return nil
 }
 
-func (evaluator *Evaluator) assertNumber(value interface{}) big.Float {
-	var ret big.Float
-	switch literal := value.(type){
-	case big.Float: return literal
-	}
-	return ret
+func (evaluator *Evaluator) assertNumberOperation(left_value interface{}, right_value interface{}) (big.Float, big.Float, bool) {
+	left, left_ok := left_value.(big.Float)
+	right, right_ok := right_value.(big.Float)
+	return left, right, left_ok && right_ok
+}
+
+func (evaluator *Evaluator) assertStringOperation(left_value interface{}, right_value interface{}) (string, string, bool) {
+	left, left_ok := left_value.(string)
+	right, right_ok := right_value.(string)
+	return left, right, left_ok && right_ok
 }
 
 func (evaluator *Evaluator) StringifyValues() []string {

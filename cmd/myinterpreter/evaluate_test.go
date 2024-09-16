@@ -28,6 +28,9 @@ func TestEvaluation(t *testing.T) {
 		{"Arithmetic #5", "69 - 93", []string{"-24"}},
 		{"Arithmetic #6", "10.40 - 2", []string{"8.4"}},
 		{"Arithmetic #6", "23 + 28 - (-(61 - 99))", []string{"13"}},
+		{"String Concatenation #1", `"hello" + " world!"`, []string{"hello world!"}},
+		{"String Concatenation #2", `"42" + "24"`, []string{"4224"}},
+		{"String Concatenation #3", `"foo" + "bar"`, []string{"foobar"}},
 	}
 
 	for _, tt := range tests {
