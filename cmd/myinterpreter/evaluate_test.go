@@ -34,6 +34,12 @@ func TestEvaluation(t *testing.T) {
 		{"Relational Operators #1", "57 > -65", []string{"true"}},
 		{"Relational Operators #2", "11 >= 11", []string{"true"}},
 		{"Relational Operators #3", "(54 - 67) >= -(114 / 57 + 11)", []string{"true"}},
+		{"Equality #1", `"hello" == "world"`, []string{"false"}},
+		{"Equality #2", `"foo" != "bar"`, []string{"true"}},
+		{"Equality #3", `"foo" == "foo"`, []string{"true"}},
+		{"Equality #4", `61 == "61"`, []string{"false"}},
+		{"Equality #5", "61 == 61", []string{"true"}},
+		{"Equality #6", "61 == 10.5", []string{"false"}},
 	}
 
 	for _, tt := range tests {

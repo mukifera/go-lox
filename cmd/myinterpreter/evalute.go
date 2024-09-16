@@ -104,6 +104,22 @@ func (evaluator *Evaluator) evaluateBinaryExpression(expression Expression) inte
 			return left.Cmp(&right) > -1
 		}
 		break
+	case OperatorEnum.EQUAL_EQUAL:
+		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
+			return left.Cmp(&right) == 0
+		}
+		if left, right, ok := evaluator.assertStringOperation(left_value, right_value); ok {
+			return left == right
+		}
+		return false
+	case OperatorEnum.BANG_EQUAL:
+		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
+			return left.Cmp(&right) != 0
+		}
+		if left, right, ok := evaluator.assertStringOperation(left_value, right_value); ok {
+			return left != right
+		}
+		return true
 	}
 	return nil
 }
