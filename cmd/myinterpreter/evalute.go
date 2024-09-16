@@ -6,6 +6,8 @@ import (
 	"errors"
 )
 
+type numberBinaryOperation func(big.Float, big.Float) interface{}
+
 type Evaluator struct {
 	expressions []Expression
 	current int
@@ -72,28 +74,29 @@ func (evaluator *Evaluator) evaluateBinaryExpression(expression Expression) (int
 		return nil, err
 	}
 
-	num_operation_error := errors.New("Operands must be numbers.")
 	num_or_str_operation_error := errors.New("Operands must be two numbers or two strings.")
+
+	exec_number_operation := func(operation numberBinaryOperation) (interface{}, error) {
+		left, right, ok := evaluator.assertNumberOperation(left_value, right_value)
+		if !ok {
+			return nil, errors.New("Operands must be numbers.")
+		}
+		return operation(left, right), nil
+	}
 
 	switch expression.operator {
 	case OperatorEnum.STAR:
-		left, right, ok := evaluator.assertNumberOperation(left_value, right_value)
-		if !ok {
-			return nil, num_operation_error
-		}
-		return *left.Mul(&left, &right), nil
+		return exec_number_operation(func(l big.Float, r big.Float) interface{} {
+			return *l.Mul(&l, &r)
+		})
 	case OperatorEnum.SLASH:
-		left, right, ok := evaluator.assertNumberOperation(left_value, right_value)
-		if !ok {
-			return nil, num_operation_error
-		}
-		return *left.Quo(&left, &right), nil
+		return exec_number_operation(func(l big.Float, r big.Float) interface{} {
+			return *l.Quo(&l, &r)
+		})
 	case OperatorEnum.MINUS:
-		left, right, ok := evaluator.assertNumberOperation(left_value, right_value)
-		if !ok {
-			return nil, num_operation_error
-		}
-		return *left.Sub(&left, &right), nil
+		return exec_number_operation(func(l big.Float, r big.Float) interface{} {
+			return *l.Sub(&l, &r)
+		})
 	case OperatorEnum.PLUS:
 		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
 			return *left.Add(&left, &right), nil
@@ -103,25 +106,21 @@ func (evaluator *Evaluator) evaluateBinaryExpression(expression Expression) (int
 		}
 		return nil, num_or_str_operation_error
 	case OperatorEnum.LESS:
-		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
-			return left.Cmp(&right) == -1, nil
-		}
-		return nil, num_operation_error
+		return exec_number_operation(func(left big.Float, right big.Float) interface{} {
+			return left.Cmp(&right) == -1
+		})
 	case OperatorEnum.LESS_EQUAL:
-		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
-			return left.Cmp(&right) < 1, nil
-		}
-		return nil, num_operation_error
+		return exec_number_operation(func(left big.Float, right big.Float) interface{} {
+			return left.Cmp(&right) < 1
+		})
 	case OperatorEnum.GREATER:
-		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
-			return left.Cmp(&right) == 1, nil
-		}
-		return nil, num_operation_error
+		return exec_number_operation(func(left big.Float, right big.Float) interface{} {
+			return left.Cmp(&right) == 1
+		})
 	case OperatorEnum.GREATER_EQUAL:
-		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
-			return left.Cmp(&right) > -1, nil
-		}
-		return nil, num_operation_error
+		return exec_number_operation(func(left big.Float, right big.Float) interface{} {
+			return left.Cmp(&right) > -1
+		})
 	case OperatorEnum.EQUAL_EQUAL:
 		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
 			return left.Cmp(&right) == 0, nil
@@ -139,7 +138,7 @@ func (evaluator *Evaluator) evaluateBinaryExpression(expression Expression) (int
 		}
 		return true, nil
 	}
-	return nil, nil
+	return nil, errors.New("Unkown binary operator.")
 }
 
 func (evaluator *Evaluator) assertNumberOperation(left_value interface{}, right_value interface{}) (big.Float, big.Float, bool) {
