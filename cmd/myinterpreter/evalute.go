@@ -71,17 +71,20 @@ func (evaluator *Evaluator) evaluateBinaryExpression(expression Expression) (int
 	if err != nil {
 		return nil, err
 	}
+
+	number_operation_error := errors.New("Operands must be numbers.")
+
 	switch expression.operator {
 	case OperatorEnum.STAR:
 		left, right, ok := evaluator.assertNumberOperation(left_value, right_value)
 		if !ok {
-			break
+			return nil, number_operation_error
 		}
 		return *left.Mul(&left, &right), nil
 	case OperatorEnum.SLASH:
 		left, right, ok := evaluator.assertNumberOperation(left_value, right_value)
 		if !ok {
-			break
+			return nil, number_operation_error
 		}
 		return *left.Quo(&left, &right), nil
 	case OperatorEnum.MINUS:

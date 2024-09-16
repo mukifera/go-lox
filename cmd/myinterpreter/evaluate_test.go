@@ -85,10 +85,14 @@ func TestEvaluationRuntimeErrors(t *testing.T) {
 		fileContents string
 		expected []string
 	}{
-		{"Runtime Errors: Unary Operators #1", `-"foo"`, []string{"Operand must be a number."}},
-		{"Runtime Errors: Unary Operators #2", "-true", []string{"Operand must be a number."}},
-		{"Runtime Errors: Unary Operators #3", `-("foo" + "bar")`, []string{"Operand must be a number."}},
-		{"Runtime Errors: Unary Operators #4", "-false", []string{"Operand must be a number."}},
+		{"Negation #1", `-"foo"`, []string{"Operand must be a number."}},
+		{"Negation #2", "-true", []string{"Operand must be a number."}},
+		{"Negation #3", `-("foo" + "bar")`, []string{"Operand must be a number."}},
+		{"Negation #4", "-false", []string{"Operand must be a number."}},
+		{"Multiplication #1", `"foo" * 42`, []string{"Operands must be numbers."}},
+		{"Multiplication #2", `("foo" * "bar")`, []string{"Operands must be numbers."}},
+		{"Division #1", "true / 2", []string{"Operands must be numbers."}},
+		{"Division #2", "false / true", []string{"Operands must be numbers."}},
 	}
 
 	for _, tt := range tests {
