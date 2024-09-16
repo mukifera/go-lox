@@ -33,6 +33,8 @@ func (evaluator *Evaluator) evaluateExpression(expression Expression) interface{
 		return evaluator.evaluateExpression(expression.children[0])
 	case ExpressionTypeEnum.UNARY:
 		return evaluator.evaluateUnaryExpression(expression)
+	case ExpressionTypeEnum.BINARY:
+		return evaluator.evaluateBinaryExpression(expression)
 	}
 	return nil
 }
@@ -41,18 +43,36 @@ func (evaluator *Evaluator) evaluateUnaryExpression(expression Expression) inter
 	value := evaluator.evaluateExpression(expression.children[0])
 	switch expression.operator {
 	case OperatorEnum.BANG:
-		value = value == false || value == nil
+		return value == false || value == nil
 	case OperatorEnum.MINUS:
-		value = *evaluator.negateValue(value)
+		number := evaluator.assertNumber(value)
+		return *number.Neg(&number)
 	}
-	return value
+	return nil
 }
 
-func (evaluator *Evaluator) negateValue(value interface{}) *big.Float {
-	switch literal := value.(type){
-	case big.Float: return literal.Neg(&literal)
-	default: return nil
+func (evaluator *Evaluator) evaluateBinaryExpression(expression Expression) interface{} {
+	left_value := evaluator.evaluateExpression(expression.children[0])
+	right_value := evaluator.evaluateExpression(expression.children[1])
+	switch expression.operator {
+	case OperatorEnum.STAR:
+		left_number := evaluator.assertNumber(left_value)
+		right_number := evaluator.assertNumber(right_value)
+		return *left_number.Mul(&left_number, &right_number)
+	case OperatorEnum.SLASH:
+		left_number := evaluator.assertNumber(left_value)
+		right_number := evaluator.assertNumber(right_value)
+		return *left_number.Quo(&left_number, &right_number)
 	}
+	return nil
+}
+
+func (evaluator *Evaluator) assertNumber(value interface{}) big.Float {
+	var ret big.Float
+	switch literal := value.(type){
+	case big.Float: return literal
+	}
+	return ret
 }
 
 func (evaluator *Evaluator) StringifyValues() []string {

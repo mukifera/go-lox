@@ -21,6 +21,9 @@ func TestEvaluation(t *testing.T) {
 		{"Unary: Not #1", "!true", []string{"false"}},
 		{"Unary: Not #2", "!10.40", []string{"false"}},
 		{"Unary: Not #3", "!((false))", []string{"true"}},
+		{"Arithmetic #1", "42 / 5", []string{"8.4"}},
+		{"Arithmetic #2", "18 * 3 / (3 * 6)", []string{"3"}},
+		{"Arithmetic #3", "(10.40 * 2) / 2", []string{"10.4"}},
 	}
 
 	for _, tt := range tests {
