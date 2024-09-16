@@ -24,6 +24,10 @@ func TestEvaluation(t *testing.T) {
 		{"Arithmetic #1", "42 / 5", []string{"8.4"}},
 		{"Arithmetic #2", "18 * 3 / (3 * 6)", []string{"3"}},
 		{"Arithmetic #3", "(10.40 * 2) / 2", []string{"10.4"}},
+		{"Arithmetic #4", "70 - 65", []string{"5"}},
+		{"Arithmetic #5", "69 - 93", []string{"-24"}},
+		{"Arithmetic #6", "10.40 - 2", []string{"8.4"}},
+		{"Arithmetic #6", "23 + 28 - (-(61 - 99))", []string{"13"}},
 	}
 
 	for _, tt := range tests {

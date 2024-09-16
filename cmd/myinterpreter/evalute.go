@@ -63,6 +63,14 @@ func (evaluator *Evaluator) evaluateBinaryExpression(expression Expression) inte
 		left_number := evaluator.assertNumber(left_value)
 		right_number := evaluator.assertNumber(right_value)
 		return *left_number.Quo(&left_number, &right_number)
+	case OperatorEnum.PLUS:
+		left_number := evaluator.assertNumber(left_value)
+		right_number := evaluator.assertNumber(right_value)
+		return *left_number.Add(&left_number, &right_number)
+	case OperatorEnum.MINUS:
+		left_number := evaluator.assertNumber(left_value)
+		right_number := evaluator.assertNumber(right_value)
+		return *left_number.Sub(&left_number, &right_number)
 	}
 	return nil
 }
