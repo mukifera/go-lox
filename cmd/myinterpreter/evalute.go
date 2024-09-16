@@ -72,25 +72,26 @@ func (evaluator *Evaluator) evaluateBinaryExpression(expression Expression) (int
 		return nil, err
 	}
 
-	number_operation_error := errors.New("Operands must be numbers.")
+	num_operation_error := errors.New("Operands must be numbers.")
+	num_or_str_operation_error := errors.New("Operands must be two numbers or two strings.")
 
 	switch expression.operator {
 	case OperatorEnum.STAR:
 		left, right, ok := evaluator.assertNumberOperation(left_value, right_value)
 		if !ok {
-			return nil, number_operation_error
+			return nil, num_operation_error
 		}
 		return *left.Mul(&left, &right), nil
 	case OperatorEnum.SLASH:
 		left, right, ok := evaluator.assertNumberOperation(left_value, right_value)
 		if !ok {
-			return nil, number_operation_error
+			return nil, num_operation_error
 		}
 		return *left.Quo(&left, &right), nil
 	case OperatorEnum.MINUS:
 		left, right, ok := evaluator.assertNumberOperation(left_value, right_value)
 		if !ok {
-			break
+			return nil, num_operation_error
 		}
 		return *left.Sub(&left, &right), nil
 	case OperatorEnum.PLUS:
@@ -100,7 +101,7 @@ func (evaluator *Evaluator) evaluateBinaryExpression(expression Expression) (int
 		if left, right, ok := evaluator.assertStringOperation(left_value, right_value); ok {
 			return left + right, nil
 		}
-		break
+		return nil, num_or_str_operation_error
 	case OperatorEnum.LESS:
 		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
 			return left.Cmp(&right) == -1, nil

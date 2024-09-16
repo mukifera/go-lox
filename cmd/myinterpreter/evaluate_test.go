@@ -93,6 +93,10 @@ func TestEvaluationRuntimeErrors(t *testing.T) {
 		{"Multiplication #2", `("foo" * "bar")`, []string{"Operands must be numbers."}},
 		{"Division #1", "true / 2", []string{"Operands must be numbers."}},
 		{"Division #2", "false / true", []string{"Operands must be numbers."}},
+		{"Addition #1", `"foo" + true`, []string{"Operands must be two numbers or two strings."}},
+		{"Addition #2", "true + false", []string{"Operands must be two numbers or two strings."}},
+		{"Subtraction #1", "42 - true", []string{"Operands must be numbers."}},
+		{"Subtraction #2", `"foo" - "bar"`, []string{"Operands must be numbers."}},
 	}
 
 	for _, tt := range tests {
