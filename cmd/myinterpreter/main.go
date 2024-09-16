@@ -60,8 +60,18 @@ func handleEvaluate() {
 	evaluator := setupEvaluator()
 	evaluator.Evaluate()
 	strs := evaluator.StringifyValues()
-	for _, str := range strs {
-		fmt.Println(str)
+	found_error := false
+	for index, str := range strs {
+		err := evaluator.errors[index]
+		if err != nil {
+			found_error = true
+			fmt.Println(err)
+		} else {
+			fmt.Println(str)
+		}
+	}
+	if found_error {
+		os.Exit(70)
 	}
 }
 

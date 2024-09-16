@@ -3,12 +3,14 @@ package main
 import (
 	"math/big"
 	"fmt"
+	"errors"
 )
 
 type Evaluator struct {
 	expressions []Expression
 	current int
 	values []interface{}
+	errors []error
 }
 
 func NewEvaluator(expressions []Expression) *Evaluator {
@@ -20,15 +22,18 @@ func NewEvaluator(expressions []Expression) *Evaluator {
 
 func (evaluator *Evaluator) Evaluate() {
 	evaluator.values = nil
+	evaluator.errors = nil
 	for _, expression := range evaluator.expressions {
-		evaluator.values = append(evaluator.values, evaluator.evaluateExpression(expression))
+		value, err := evaluator.evaluateExpression(expression)
+		evaluator.values = append(evaluator.values, value)
+		evaluator.errors = append(evaluator.errors, err)
 	}
 }
 
-func (evaluator *Evaluator) evaluateExpression(expression Expression) interface{} {
+func (evaluator *Evaluator) evaluateExpression(expression Expression) (interface{}, error) {
 	switch expression.expression_type {
 	case ExpressionTypeEnum.LITERAL:
-		return expression.literal
+		return expression.literal, nil
 	case ExpressionTypeEnum.GROUPING:
 		return evaluator.evaluateExpression(expression.children[0])
 	case ExpressionTypeEnum.UNARY:
@@ -36,92 +41,101 @@ func (evaluator *Evaluator) evaluateExpression(expression Expression) interface{
 	case ExpressionTypeEnum.BINARY:
 		return evaluator.evaluateBinaryExpression(expression)
 	}
-	return nil
+	return nil, nil
 }
 
-func (evaluator *Evaluator) evaluateUnaryExpression(expression Expression) interface{} {
-	value := evaluator.evaluateExpression(expression.children[0])
+func (evaluator *Evaluator) evaluateUnaryExpression(expression Expression) (interface{}, error) {
+	value, err := evaluator.evaluateExpression(expression.children[0])
+	if err != nil {
+		return nil, err
+	}
 	switch expression.operator {
 	case OperatorEnum.BANG:
-		return value == false || value == nil
+		return (value == false || value == nil), nil
 	case OperatorEnum.MINUS:
 		number, ok := value.(big.Float)
 		if !ok {
-			break
+			return nil, errors.New("Operand must be a number.")
 		}
-		return *number.Neg(&number)
+		return *number.Neg(&number), nil
 	}
-	return nil
+	return nil, errors.New("Unknown unary operator.")
 }
 
-func (evaluator *Evaluator) evaluateBinaryExpression(expression Expression) interface{} {
-	left_value := evaluator.evaluateExpression(expression.children[0])
-	right_value := evaluator.evaluateExpression(expression.children[1])
+func (evaluator *Evaluator) evaluateBinaryExpression(expression Expression) (interface{}, error) {
+	left_value, err := evaluator.evaluateExpression(expression.children[0])
+	if err != nil {
+		return nil, err
+	}
+	right_value, err := evaluator.evaluateExpression(expression.children[1])
+	if err != nil {
+		return nil, err
+	}
 	switch expression.operator {
 	case OperatorEnum.STAR:
 		left, right, ok := evaluator.assertNumberOperation(left_value, right_value)
 		if !ok {
 			break
 		}
-		return *left.Mul(&left, &right)
+		return *left.Mul(&left, &right), nil
 	case OperatorEnum.SLASH:
 		left, right, ok := evaluator.assertNumberOperation(left_value, right_value)
 		if !ok {
 			break
 		}
-		return *left.Quo(&left, &right)
+		return *left.Quo(&left, &right), nil
 	case OperatorEnum.MINUS:
 		left, right, ok := evaluator.assertNumberOperation(left_value, right_value)
 		if !ok {
 			break
 		}
-		return *left.Sub(&left, &right)
+		return *left.Sub(&left, &right), nil
 	case OperatorEnum.PLUS:
 		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
-			return *left.Add(&left, &right)
+			return *left.Add(&left, &right), nil
 		}
 		if left, right, ok := evaluator.assertStringOperation(left_value, right_value); ok {
-			return left + right
+			return left + right, nil
 		}
 		break
 	case OperatorEnum.LESS:
 		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
-			return left.Cmp(&right) == -1
+			return left.Cmp(&right) == -1, nil
 		}
 		break
 	case OperatorEnum.LESS_EQUAL:
 		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
-			return left.Cmp(&right) < 1
+			return left.Cmp(&right) < 1, nil
 		}
 		break
 	case OperatorEnum.GREATER:
 		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
-			return left.Cmp(&right) == 1
+			return left.Cmp(&right) == 1, nil
 		}
 		break
 	case OperatorEnum.GREATER_EQUAL:
 		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
-			return left.Cmp(&right) > -1
+			return left.Cmp(&right) > -1, nil
 		}
 		break
 	case OperatorEnum.EQUAL_EQUAL:
 		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
-			return left.Cmp(&right) == 0
+			return left.Cmp(&right) == 0, nil
 		}
 		if left, right, ok := evaluator.assertStringOperation(left_value, right_value); ok {
-			return left == right
+			return left == right, nil
 		}
-		return false
+		return false, nil
 	case OperatorEnum.BANG_EQUAL:
 		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
-			return left.Cmp(&right) != 0
+			return left.Cmp(&right) != 0, nil
 		}
 		if left, right, ok := evaluator.assertStringOperation(left_value, right_value); ok {
-			return left != right
+			return left != right, nil
 		}
-		return true
+		return true, nil
 	}
-	return nil
+	return nil, nil
 }
 
 func (evaluator *Evaluator) assertNumberOperation(left_value interface{}, right_value interface{}) (big.Float, big.Float, bool) {

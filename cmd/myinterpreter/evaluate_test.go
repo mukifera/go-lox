@@ -2,6 +2,25 @@ package main
 
 import "testing"
 
+func hookupEvaluator(fileContents string, t *testing.T) *Evaluator {
+	scanner := NewScanner(fileContents)
+	err := scanner.Scan()
+	if err != nil {
+		t.Errorf("Scanner: tokenizing error: %v", err)
+	}
+
+	parser := NewParser(scanner.tokens)
+	err = parser.Parse()
+	if err != nil {
+		t.Errorf("Parser: parsing error: %v", err)
+	}
+
+	evaluator := NewEvaluator(parser.expressions)
+	evaluator.Evaluate()
+
+	return evaluator
+}
+
 func TestEvaluation(t *testing.T) {
 	tests := []struct {
 		name string
@@ -44,21 +63,7 @@ func TestEvaluation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			scanner := NewScanner(tt.fileContents)
-			err := scanner.Scan()
-			if err != nil {
-				t.Errorf("Scanner: tokenizing error: %v", err)
-			}
-
-			parser := NewParser(scanner.tokens)
-			err = parser.Parse()
-			if err != nil {
-				t.Errorf("Parser: parsing error: %v", err)
-			}
-
-			evaluator := NewEvaluator(parser.expressions)
-			evaluator.Evaluate()
-
+			evaluator := hookupEvaluator(tt.fileContents, t)
 			actual := evaluator.StringifyValues()
 
 			if len(tt.expected) != len(actual) {
@@ -67,6 +72,43 @@ func TestEvaluation(t *testing.T) {
 				for index, str := range actual {
 					if tt.expected[index] != str {
 						t.Errorf("Evaluation result mismatch on output %d\nExpected: %s\nGot: %s", index + 1, tt.expected[index], str)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestEvaluationRuntimeErrors(t *testing.T) {
+	tests := []struct {
+		name string
+		fileContents string
+		expected []string
+	}{
+		{"Runtime Errors: Unary Operators #1", `-"foo"`, []string{"Operand must be a number."}},
+		{"Runtime Errors: Unary Operators #2", "-true", []string{"Operand must be a number."}},
+		{"Runtime Errors: Unary Operators #3", `-("foo" + "bar")`, []string{"Operand must be a number."}},
+		{"Runtime Errors: Unary Operators #4", "-false", []string{"Operand must be a number."}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluator := hookupEvaluator(tt.fileContents, t)
+			
+			var actual []string
+			for _, err := range evaluator.errors {
+				if err == nil {
+					continue
+				}
+				actual = append(actual, err.Error())
+			}
+
+			if len(tt.expected) != len(actual) {
+				t.Errorf("Evaluation errors length mismatch: Expected %d errors, got %d", len(tt.expected), len(actual))
+			} else {
+				for index, str := range actual {
+					if tt.expected[index] != str {
+						t.Errorf("Evaluation errors mismatch on error %d\nExpected: %s\nGot: %s", index + 1, tt.expected[index], str)
 					}
 				}
 			}
