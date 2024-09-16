@@ -139,16 +139,20 @@ func NewBuiltinExpression(expr Expression, operator Operator) Expression {
 
 func (e *Expression) String() string {
 	switch e.expression_type {
+	case ExpressionTypeEnum.UNDEFINED:
+		return ""
 	case ExpressionTypeEnum.LITERAL:
 		return e.StringLiteral()
 	case ExpressionTypeEnum.GROUPING:
 		return fmt.Sprintf("(group %s)", e.children[0].String())
-	case ExpressionTypeEnum.UNARY:
-		return fmt.Sprintf("(%s %s)", e.operator.StringSymbol(), e.children[0].String())
-	case ExpressionTypeEnum.BINARY:
-		return fmt.Sprintf("(%s %s %s)", e.operator.StringSymbol(), e.children[0].String(), e.children[1].String())
+	default:
+		str := fmt.Sprintf("(%s", e.operator.StringSymbol())
+		for _, child := range e.children {
+			str = str + " " + child.String()
+		}
+		str = str + ")"
+		return str
 	}
-	return ""
 }
 
 func (e *Expression) StringLiteral() string {
