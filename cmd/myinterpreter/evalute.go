@@ -84,6 +84,26 @@ func (evaluator *Evaluator) evaluateBinaryExpression(expression Expression) inte
 			return left + right
 		}
 		break
+	case OperatorEnum.LESS:
+		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
+			return left.Cmp(&right) == -1
+		}
+		break
+	case OperatorEnum.LESS_EQUAL:
+		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
+			return left.Cmp(&right) < 1
+		}
+		break
+	case OperatorEnum.GREATER:
+		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
+			return left.Cmp(&right) == 1
+		}
+		break
+	case OperatorEnum.GREATER_EQUAL:
+		if left, right, ok := evaluator.assertNumberOperation(left_value, right_value); ok {
+			return left.Cmp(&right) > -1
+		}
+		break
 	}
 	return nil
 }

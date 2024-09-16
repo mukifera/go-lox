@@ -31,6 +31,9 @@ func TestEvaluation(t *testing.T) {
 		{"String Concatenation #1", `"hello" + " world!"`, []string{"hello world!"}},
 		{"String Concatenation #2", `"42" + "24"`, []string{"4224"}},
 		{"String Concatenation #3", `"foo" + "bar"`, []string{"foobar"}},
+		{"Relational Operators #1", "57 > -65", []string{"true"}},
+		{"Relational Operators #2", "11 >= 11", []string{"true"}},
+		{"Relational Operators #3", "(54 - 67) >= -(114 / 57 + 11)", []string{"true"}},
 	}
 
 	for _, tt := range tests {
