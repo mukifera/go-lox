@@ -71,6 +71,27 @@ func handleEvaluate() {
 	}
 }
 
+func handleRun() {
+	parser := setupParser()
+	err := parser.Parse()
+	if err != nil {
+		os.Exit(65)
+	}
+
+	errs := RunExpressions(parser.expressions)
+
+	found_error := false
+	for _, err := range errs {
+		if err != nil {
+			found_error = true
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+		}
+	}
+	if found_error {
+		os.Exit(70)
+	}
+}
+
 func main() {
 
 	if len(os.Args) < 3 {
@@ -84,6 +105,7 @@ func main() {
 	case "tokenize": handleTokenize(); break;
 	case "parse": handleParse(); break;
 	case "evaluate": handleEvaluate(); break;
+	case "run": handleRun(); break;
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
 		os.Exit(1)
