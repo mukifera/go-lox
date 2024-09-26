@@ -115,12 +115,18 @@ func evaluateBinaryExpression(expr Expression) (interface{}, error) {
 		if left, right, ok := assertStringOperation(left_value, right_value); ok {
 			return left == right, nil
 		}
+		if left, right, ok := assertBoolOperation(left_value, right_value); ok {
+			return left == right, nil
+		}
 		return false, nil
 	case OperatorEnum.BANG_EQUAL:
 		if left, right, ok := assertNumberOperation(left_value, right_value); ok {
 			return left.Cmp(&right) != 0, nil
 		}
 		if left, right, ok := assertStringOperation(left_value, right_value); ok {
+			return left != right, nil
+		}
+		if left, right, ok := assertBoolOperation(left_value, right_value); ok {
 			return left != right, nil
 		}
 		return true, nil
@@ -137,6 +143,12 @@ func assertNumberOperation(left_value interface{}, right_value interface{}) (big
 func assertStringOperation(left_value interface{}, right_value interface{}) (string, string, bool) {
 	left, left_ok := left_value.(string)
 	right, right_ok := right_value.(string)
+	return left, right, left_ok && right_ok
+}
+
+func assertBoolOperation(left_value interface{}, right_value interface{}) (bool, bool, bool) {
+	left, left_ok := left_value.(bool)
+	right, right_ok := right_value.(bool)
 	return left, right, left_ok && right_ok
 }
 
