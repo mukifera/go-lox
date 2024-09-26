@@ -131,7 +131,7 @@ func (parser *Parser) parsePrimary() Expression {
 	if parser.Matches(NIL) {
 		return NewLiteralExpression(nil)
 	}
-	if parser.Matches(NUMBER, STRING) {
+	if parser.Matches(NUMBER, STRING, IDENTIFIER) {
 		return NewLiteralExpression(parser.Previous().literal)
 	}
 	if parser.Matches(PRINT) {
