@@ -22,6 +22,7 @@ func TestTokenization(t *testing.T) {
 		{"Number Literals", "42 1234.1234", "NUMBER 42 42.0\nNUMBER 1234.1234 1234.1234\nEOF  null"},
 		{"Identifiers", "foo bar _hello", "IDENTIFIER foo null\nIDENTIFIER bar null\nIDENTIFIER _hello null\nEOF  null"},
 		{"Reserved Words", "and class else false for fun if nil or print return super this true var while", "AND and null\nCLASS class null\nELSE else null\nFALSE false null\nFOR for null\nFUN fun null\nIF if null\nNIL nil null\nOR or null\nPRINT print null\nRETURN return null\nSUPER super null\nTHIS this null\nTRUE true null\nVAR var null\nWHILE while null\nEOF  null"},
+		{"Non-ASCII characters", "\"Señor\"", "STRING \"Señor\" Señor\nEOF  null"},
 	}
 
 	for _, tt := range tests {

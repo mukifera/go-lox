@@ -2,15 +2,15 @@ package main
 
 import "math/big"
 
-func isAlpha(c byte) bool {
+func isAlpha(c rune) bool {
 	return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'z') || (c == '_')
 }
 
-func isDigit(c byte) bool {
+func isDigit(c rune) bool {
 	return '0' <= c && c <= '9'
 }
 
-func isAlphaNumeric(c byte) bool {
+func isAlphaNumeric(c rune) bool {
 	return isAlpha(c) || isDigit(c)
 }
 

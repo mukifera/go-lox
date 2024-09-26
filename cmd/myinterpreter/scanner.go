@@ -9,14 +9,14 @@ import (
 type Scanner struct {
 	current int
 	start int
-	contents string
+	contents []rune
 	tokens []Token
 	reserved_words map[string]TokenType
 }
 
 func NewScanner(contents string) *Scanner {
 	var scanner Scanner
-	scanner.contents = contents
+	scanner.contents = []rune(contents)
 	scanner.current = 0
 	scanner.start = 0
 	
@@ -51,13 +51,13 @@ func (scanner *Scanner) AddToken(token_type TokenType, lexeme string, literal in
 	scanner.tokens = append(scanner.tokens, new_token)
 }
 
-func (scanner *Scanner) Advance() byte {
+func (scanner *Scanner) Advance() rune {
 	ch := scanner.contents[scanner.current]
 	scanner.current++
 	return ch
 }
 
-func (scanner *Scanner) Match(char byte) bool {
+func (scanner *Scanner) Match(char rune) bool {
 	if scanner.AtEnd() || scanner.contents[scanner.current] != char {
 		return false
 	}
@@ -69,14 +69,14 @@ func (scanner *Scanner) AtEnd() bool {
 	return scanner.current == len(scanner.contents)
 }
 
-func (scanner *Scanner) Peek() byte {
+func (scanner *Scanner) Peek() rune {
 	if scanner.AtEnd() {
 		return 0
 	}
 	return scanner.contents[scanner.current]
 }
 
-func (scanner *Scanner) PeekNext() byte {
+func (scanner *Scanner) PeekNext() rune {
 	if scanner.current + 1 >= len(scanner.contents) {
 		return 0
 	}
@@ -114,7 +114,7 @@ func (scanner *Scanner) ScanIdentifier() {
 }
 
 func (scanner *Scanner) CurrentLexeme() string {
-	return scanner.contents[scanner.start : scanner.current]
+	return string(scanner.contents[scanner.start : scanner.current])
 }
 
 func (scanner *Scanner) Scan() error {
