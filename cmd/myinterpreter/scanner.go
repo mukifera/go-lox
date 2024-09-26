@@ -175,7 +175,7 @@ func (scanner *Scanner) Scan() error {
 		case '"':
 			string_literal := ""
 			for {
-				if scanner.AtEnd() || scanner.Peek() == '\n' {
+				if scanner.AtEnd() {
 					fmt.Fprintf(os.Stderr, "[line %d] Error: Unterminated string.\n", line)
 					found_error = true
 					break
