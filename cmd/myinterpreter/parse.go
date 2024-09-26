@@ -41,8 +41,14 @@ func tokenTypeToOperator(token_type TokenType) Operator {
 }
 
 func (parser *Parser) Parse() error {
-	expr := parser.parseExpression()
-	parser.expressions = []Expression{expr}
+	for !parser.AtEnd() {
+		expr := parser.parseExpression()
+		if !parser.AtEnd() && !parser.Matches(SEMICOLON) {
+			fmt.Fprintf(os.Stderr, "Error: Expected semicolon.\n")
+			parser.has_error = true
+		}
+		parser.expressions = append(parser.expressions, expr)
+	}
 	if parser.has_error {
 		return errors.New("Error parsing tokens")
 	}
