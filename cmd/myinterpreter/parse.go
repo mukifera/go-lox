@@ -74,14 +74,20 @@ func (parser *Parser) parseExpression() Expression {
 func (parser *Parser) parseAssignment() Expression {
 	expr := parser.parseEquality()
 
+	exprs := []Expression{expr}
+
 	for parser.Matches(EQUAL) {
-		token_type := parser.Previous().token_type
-		operator := tokenTypeToOperator(token_type)
 		right := parser.parseEquality()
-		top := NewBinaryExpression(expr, right, operator)
-		expr = top
+		exprs = append(exprs, right)
 	}
-	return expr
+
+	for i := len(exprs) - 2; i >= 0; i-- {
+		right := exprs[i+1]
+		top := NewBinaryExpression(exprs[i], right, OperatorEnum.EQUAL)
+		exprs[i] = top
+	}
+
+	return exprs[0]
 }
 
 func (parser *Parser) parseEquality() Expression {

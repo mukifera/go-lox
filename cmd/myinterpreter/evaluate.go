@@ -138,6 +138,16 @@ func evaluateBinaryExpression(expr Expression, scope map[string]interface{}) (in
 			return left != right, nil
 		}
 		return true, nil
+	case OperatorEnum.EQUAL:
+		if expr.children[0].expression_type != ExpressionTypeEnum.IDENTIFIER {
+			return nil, errors.New("left hand side of an assignment operator must be an identifier")
+		}
+		variable := expr.children[0].StringLiteral()
+		if _, ok := scope[variable]; !ok {
+			return nil, fmt.Errorf("variable %s was not declared before assignment", variable)
+		}
+		scope[variable] = right_value
+		return right_value, nil
 	}
 	return nil, errors.New("unkown binary operator")
 }

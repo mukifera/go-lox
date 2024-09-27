@@ -192,3 +192,49 @@
     var baz = bar;
   expectedError: |-
     undefined variable 'bar'
+- name: "Assignment operation #1"
+  fileContents: |
+    var quz;
+    quz = 1;
+    print quz;
+    print quz = 2;
+    print quz;
+  expectedOutput: |
+    1
+    2
+    2
+- name: "Assignment operation #2"
+  fileContents: |
+    var hello = 93;
+    var bar = 93;
+    bar = hello;
+    hello = bar;
+    print hello + bar;
+  expectedOutput: |
+    186
+- name: "Assignment operation #3"
+  fileContents: |
+    var quz;
+    var hello;
+
+    quz = hello = 16 + 34 * 92;
+    print quz;
+    print hello;
+  expectedOutput: |
+    3144
+    3144
+- name: "Assignment operation #4"
+  fileContents: |
+    var hello = 65;
+    var baz;
+    var quz;
+
+    hello = baz = quz = hello * 2;
+    print hello;
+    print baz;
+    print baz;
+  expectedOutput: |
+    130
+    130
+    130
+    
