@@ -122,3 +122,37 @@
     print quz + world + he
   expectedError: |-
     undefined variable 'he'
+- name: "No value variable declaration #1"
+  fileContents: |
+    var foo;
+    print foo;
+  expectedOutput: |
+    nil
+- name: "No value variable declaration #2"
+  fileContents: |
+    var baz = "foo";
+    var bar;
+    print bar;
+  expectedOutput: |
+    nil
+- name: "No value variable declaration #3"
+  fileContents: |
+    var baz = 69;
+    var world;
+    var quz;
+    print world;
+  expectedOutput: |
+    nil
+- name: "No value variable declaration #4"
+  fileContents: |
+    var quz = 73 + 26 * 20;
+    print quz;
+    var hello = 26 * 20;
+    print quz + hello;
+    var foo;
+    print foo;
+  expectedOutput: |
+    593
+    1113
+    nil
+    

@@ -168,9 +168,10 @@ func (parser *Parser) parsePrimary() Expression {
 	}
 	if parser.Matches(VAR) {
 		expr := parser.parseExpression()
-		if expr.expression_type != ExpressionTypeEnum.BINARY ||
-			expr.operator != OperatorEnum.EQUAL ||
-			expr.children[0].expression_type != ExpressionTypeEnum.IDENTIFIER {
+		if expr.expression_type != ExpressionTypeEnum.IDENTIFIER &&
+			(expr.expression_type != ExpressionTypeEnum.BINARY ||
+				expr.operator != OperatorEnum.EQUAL ||
+				expr.children[0].expression_type != ExpressionTypeEnum.IDENTIFIER) {
 			fmt.Fprintf(os.Stderr, "Error: Invalid variable declaration.\n")
 			parser.has_error = true
 		}

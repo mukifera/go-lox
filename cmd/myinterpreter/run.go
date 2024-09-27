@@ -37,13 +37,23 @@ func FRunExpression(writer io.Writer, expr Expression, scope map[string]interfac
 		str := StringifyEvaluationValue(value)
 		fmt.Fprintln(writer, str)
 	case OperatorEnum.VAR:
-		expr_identifier := expr.children[0].children[0]
-		expr_value := expr.children[0].children[1]
-		value, err := EvaluateExpression(expr_value, scope)
-		if err != nil {
-			return err
+		var variable string
+		var value interface{}
+		var err error
+
+		if expr.children[0].expression_type == ExpressionTypeEnum.IDENTIFIER {
+			variable = expr.children[0].StringLiteral()
+			value = nil
+			err = nil
+		} else {
+			variable = expr.children[0].children[0].StringLiteral()
+			value, err = EvaluateExpression(expr.children[0].children[1], scope)
+			if err != nil {
+				return err
+			}
 		}
-		scope[expr_identifier.literal.(string)] = value
+
+		scope[variable] = value
 
 	default:
 		_, err := EvaluateExpression(expr, scope)
