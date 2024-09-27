@@ -155,4 +155,40 @@
     593
     1113
     nil
-    
+- name: "Variable redeclaration #1"
+  fileContents: |
+    var baz = "before";
+    print baz;
+    var baz = "after";
+    print baz;
+  expectedOutput: |
+    before
+    after
+- name: "Variable redeclaration #2"
+  fileContents: |
+    var hello = "after";
+    var hello = "before";
+    var hello = hello;
+    print hello;
+  expectedOutput: |
+    before
+- name: "Variable redeclaration #3"
+  fileContents: |
+    var world = 2;
+    print world;
+    var world = 3;
+    print world;
+    var hello = 5;
+    print hello;
+    var world = hello;
+    print world;
+  expectedOutput: |
+    2
+    3
+    5
+    5
+- name: "Variable redeclaration #4"
+  fileContents: |
+    var baz = bar;
+  expectedError: |-
+    undefined variable 'bar'
