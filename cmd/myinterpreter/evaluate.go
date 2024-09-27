@@ -31,9 +31,10 @@ func EvaluateExpression(expr Expression, scope map[string]interface{}) (interfac
 	case ExpressionTypeEnum.BINARY:
 		return evaluateBinaryExpression(expr, scope)
 	case ExpressionTypeEnum.IDENTIFIER:
-		value, ok := scope[expr.literal.(string)]
+		variable := expr.literal.(string)
+		value, ok := scope[variable]
 		if !ok {
-			value = nil
+			return nil, fmt.Errorf("undefined variable '%s'", variable)
 		}
 		return value, nil
 	}

@@ -46,7 +46,7 @@ func FRunExpression(writer io.Writer, expr Expression, scope map[string]interfac
 		scope[expr_identifier.literal.(string)] = value
 
 	default:
-		_, err := EvaluateExpression(expr, nil)
+		_, err := EvaluateExpression(expr, scope)
 		if err != nil {
 			return err
 		}

@@ -10,9 +10,10 @@ import (
 )
 
 type test_config struct {
-	Name         string `yaml:"name"`
-	FileContents string `yaml:"fileContents"`
-	Expected     string `yaml:"expected"`
+	Name           string `yaml:"name"`
+	FileContents   string `yaml:"fileContents"`
+	ExpectedOutput string `yaml:"expectedOutput"`
+	ExpectedError  string `yaml:"expectedError"`
 }
 
 func TestRuntime(t *testing.T) {
@@ -32,11 +33,24 @@ func TestRuntime(t *testing.T) {
 		t.Run(tt.Name, func(t *testing.T) {
 			exprs := getExpressions(tt.FileContents, t)
 			var buf bytes.Buffer
-			FRunExpressions(&buf, exprs)
-			str := buf.String()
+			errors := FRunExpressions(&buf, exprs)
+			actual_output := buf.String()
+			actual_err := ""
+			for _, err := range errors {
+				if err == nil {
+					continue
+				}
+				if len(actual_err) > 0 {
+					actual_err += "\n"
+				}
+				actual_err += err.Error()
+			}
 
-			if tt.Expected != str {
-				t.Errorf("Execution result mismatch\nExpected:\n\n%s\nGot:\n\n%s", tt.Expected, str)
+			if tt.ExpectedOutput != actual_output {
+				t.Errorf("Execution result mismatch\nExpected output:\n\n%s\nGot:\n\n%s", tt.ExpectedOutput, actual_output)
+			}
+			if tt.ExpectedError != actual_err {
+				t.Errorf("Execution result mismatch\nExpected error:\n\n%s\nGot:\n\n%s", tt.ExpectedError, actual_err)
 			}
 		})
 	}

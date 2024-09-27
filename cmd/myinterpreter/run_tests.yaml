@@ -1,29 +1,29 @@
 - name: "Print #1"
   fileContents: |
     print "Hello, World!";
-  expected: |
+  expectedOutput: |
     Hello, World!
 - name: "Print #2"
   fileContents: |
     print 42;
-  expected: |
+  expectedOutput: |
     42
 - name: "Print #3"
   fileContents: |
     print true;
-  expected: |
+  expectedOutput: |
     true
 - name: "Print #4"
   fileContents: |
     print 12 + 24;
-  expected: |
+  expectedOutput: |
     36
 - name: "Multiple Statements #1"
   fileContents: |
     print "world" + "baz" + "bar";
     print 27 - 26;
     print "bar" == "quz";
-  expected: |
+  expectedOutput: |
     worldbazbar
     1
     false
@@ -32,7 +32,7 @@
     print "hello"; print true;
     print false;
     print "bar"; print 43;
-  expected: |
+  expectedOutput: |
     hello
     true
     false
@@ -43,7 +43,7 @@
     print 81;
     print 81 + 46;
     print 81 + 46 + 19;
-  expected: |
+  expectedOutput: |
     81
     127
     146
@@ -57,7 +57,7 @@
     ";
 
     print "There should be an empty line above this.";
-  expected: |
+  expectedOutput: |
     false
     36
     10
@@ -68,7 +68,7 @@
   fileContents: |
     var world = 10;
     print world;
-  expected: |
+  expectedOutput: |
     10
 - name: "Variable Declarations #2"
   fileContents: |
@@ -77,20 +77,48 @@
     print bar + foo;
     var quz = 99;
     print bar + foo + quz;
-  expected: |
+  expectedOutput: |
     198
     297
 - name: "Variable Declarations #3"
   fileContents: |
     var foo = (8 * (62 + 62)) / 4 + 62;
     print foo;
-  expected: |
+  expectedOutput: |
     310
 - name: "Variable Declarations #4"
   fileContents: |
     var quz = 76;
     var baz = quz;
     print baz + quz;
-  expected: |
+  expectedOutput: |
     152
-    
+- name: "Undefined Variable #1"
+  fileContents: |
+    print 22;
+    print x;
+  expectedOutput: |
+    22
+  expectedError: |-
+    undefined variable 'x'
+- name: "Undefined Variable #2"
+  fileContents: |
+    var baz = 96;
+    print hello;
+  expectedError: |-
+    undefined variable 'hello'
+- name: "Undefined Variable #3"
+  fileContents: |
+    var hello = 85;
+    var result = (hello + bar) / world;
+    print result;
+  expectedError: |-
+    undefined variable 'bar'
+- name: "Undefined Variable #4"
+  fileContents: |
+    var quz = 20;
+    var world = 51;
+    var hello = 56;
+    print quz + world + he
+  expectedError: |-
+    undefined variable 'he'
