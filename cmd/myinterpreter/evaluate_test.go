@@ -20,9 +20,9 @@ func getExpressions(fileContents string, t *testing.T) []Expression {
 
 func TestEvaluation(t *testing.T) {
 	tests := []struct {
-		name string
+		name         string
 		fileContents string
-		expected []string
+		expected     []string
 	}{
 		{"Literals: Boolean/true", "true", []string{"true"}},
 		{"Literals: Boolean/false", "false", []string{"false"}},
@@ -69,7 +69,7 @@ func TestEvaluation(t *testing.T) {
 			} else {
 				for index, str := range actual {
 					if tt.expected[index] != str {
-						t.Errorf("Evaluation result mismatch on output %d\nExpected: %s\nGot: %s", index + 1, tt.expected[index], str)
+						t.Errorf("Evaluation result mismatch on output %d\nExpected: %s\nGot: %s", index+1, tt.expected[index], str)
 					}
 				}
 			}
@@ -79,39 +79,39 @@ func TestEvaluation(t *testing.T) {
 
 func TestEvaluationRuntimeErrors(t *testing.T) {
 	tests := []struct {
-		name string
+		name         string
 		fileContents string
-		expected []string
+		expected     []string
 	}{
-		{"Negation #1", `-"foo"`, []string{"Operand must be a number."}},
-		{"Negation #2", "-true", []string{"Operand must be a number."}},
-		{"Negation #3", `-("foo" + "bar")`, []string{"Operand must be a number."}},
-		{"Negation #4", "-false", []string{"Operand must be a number."}},
-		{"Multiplication #1", `"foo" * 42`, []string{"Operands must be numbers."}},
-		{"Multiplication #2", `("foo" * "bar")`, []string{"Operands must be numbers."}},
-		{"Division #1", "true / 2", []string{"Operands must be numbers."}},
-		{"Division #2", "false / true", []string{"Operands must be numbers."}},
-		{"Addition #1", `"foo" + true`, []string{"Operands must be two numbers or two strings."}},
-		{"Addition #2", "true + false", []string{"Operands must be two numbers or two strings."}},
-		{"Subtraction #1", "42 - true", []string{"Operands must be numbers."}},
-		{"Subtraction #2", `"foo" - "bar"`, []string{"Operands must be numbers."}},
-		{"Less #1", `"foo" < false`, []string{"Operands must be numbers."}},
-		{"Less #2", "true < 2", []string{"Operands must be numbers."}},
-		{"Less #3", `("foo" + "bar") < 42`, []string{"Operands must be numbers."}},
-		{"Less Or Equal #1", `"foo" <= false`, []string{"Operands must be numbers."}},
-		{"Less Or Equal #2", "true <= true", []string{"Operands must be numbers."}},
-		{"Less Or Equal #3", `("foo" + "bar") <= 42`, []string{"Operands must be numbers."}},
-		{"Greater #1", "false > true", []string{"Operands must be numbers."}},
-		{"Greater #2", `false > "foo"`, []string{"Operands must be numbers."}},
-		{"Greater Or Equal #1", "false >= true", []string{"Operands must be numbers."}},
-		{"Greater Or Equal #2", `"bar" >= "bar"`, []string{"Operands must be numbers."}},
+		{"Negation #1", `-"foo"`, []string{"operand must be a number"}},
+		{"Negation #2", "-true", []string{"operand must be a number"}},
+		{"Negation #3", `-("foo" + "bar")`, []string{"operand must be a number"}},
+		{"Negation #4", "-false", []string{"operand must be a number"}},
+		{"Multiplication #1", `"foo" * 42`, []string{"operands must be numbers"}},
+		{"Multiplication #2", `("foo" * "bar")`, []string{"operands must be numbers"}},
+		{"Division #1", "true / 2", []string{"operands must be numbers"}},
+		{"Division #2", "false / true", []string{"operands must be numbers"}},
+		{"Addition #1", `"foo" + true`, []string{"operands must be two numbers or two strings"}},
+		{"Addition #2", "true + false", []string{"operands must be two numbers or two strings"}},
+		{"Subtraction #1", "42 - true", []string{"operands must be numbers"}},
+		{"Subtraction #2", `"foo" - "bar"`, []string{"operands must be numbers"}},
+		{"Less #1", `"foo" < false`, []string{"operands must be numbers"}},
+		{"Less #2", "true < 2", []string{"operands must be numbers"}},
+		{"Less #3", `("foo" + "bar") < 42`, []string{"operands must be numbers"}},
+		{"Less Or Equal #1", `"foo" <= false`, []string{"operands must be numbers"}},
+		{"Less Or Equal #2", "true <= true", []string{"operands must be numbers"}},
+		{"Less Or Equal #3", `("foo" + "bar") <= 42`, []string{"operands must be numbers"}},
+		{"Greater #1", "false > true", []string{"operands must be numbers"}},
+		{"Greater #2", `false > "foo"`, []string{"operands must be numbers"}},
+		{"Greater Or Equal #1", "false >= true", []string{"operands must be numbers"}},
+		{"Greater Or Equal #2", `"bar" >= "bar"`, []string{"operands must be numbers"}},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			exprs := getExpressions(tt.fileContents, t)
 			_, errs := EvaluateExpressions(exprs)
-			
+
 			var actual []string
 			for _, err := range errs {
 				if err == nil {
@@ -125,7 +125,7 @@ func TestEvaluationRuntimeErrors(t *testing.T) {
 			} else {
 				for index, str := range actual {
 					if tt.expected[index] != str {
-						t.Errorf("Evaluation errors mismatch on error %d\nExpected: %s\nGot: %s", index + 1, tt.expected[index], str)
+						t.Errorf("Evaluation errors mismatch on error %d\nExpected: %s\nGot: %s", index+1, tt.expected[index], str)
 					}
 				}
 			}

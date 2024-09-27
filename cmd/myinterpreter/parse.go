@@ -7,10 +7,10 @@ import (
 )
 
 type Parser struct {
-	current int
+	current   int
 	has_error bool
 
-	tokens []Token
+	tokens      []Token
 	expressions []Expression
 }
 
@@ -24,19 +24,31 @@ func NewParser(tokens []Token) *Parser {
 
 func tokenTypeToOperator(token_type TokenType) Operator {
 	switch token_type {
-		case MINUS: 				return OperatorEnum.MINUS
-		case PLUS: 					return OperatorEnum.PLUS
-		case STAR: 					return OperatorEnum.STAR
-		case EQUAL: 				return OperatorEnum.EQUAL
-		case EQUAL_EQUAL: 	return OperatorEnum.EQUAL_EQUAL
-		case BANG: 					return OperatorEnum.BANG
-		case BANG_EQUAL: 		return OperatorEnum.BANG_EQUAL
-		case LESS: 					return OperatorEnum.LESS
-		case LESS_EQUAL: 		return OperatorEnum.LESS_EQUAL
-		case GREATER: 			return OperatorEnum.GREATER
-		case GREATER_EQUAL: return OperatorEnum.GREATER_EQUAL
-		case SLASH: 				return OperatorEnum.SLASH
-		}
+	case MINUS:
+		return OperatorEnum.MINUS
+	case PLUS:
+		return OperatorEnum.PLUS
+	case STAR:
+		return OperatorEnum.STAR
+	case EQUAL:
+		return OperatorEnum.EQUAL
+	case EQUAL_EQUAL:
+		return OperatorEnum.EQUAL_EQUAL
+	case BANG:
+		return OperatorEnum.BANG
+	case BANG_EQUAL:
+		return OperatorEnum.BANG_EQUAL
+	case LESS:
+		return OperatorEnum.LESS
+	case LESS_EQUAL:
+		return OperatorEnum.LESS_EQUAL
+	case GREATER:
+		return OperatorEnum.GREATER
+	case GREATER_EQUAL:
+		return OperatorEnum.GREATER_EQUAL
+	case SLASH:
+		return OperatorEnum.SLASH
+	}
 	return OperatorEnum.UNDEFINED
 }
 
@@ -50,7 +62,7 @@ func (parser *Parser) Parse() error {
 		parser.expressions = append(parser.expressions, expr)
 	}
 	if parser.has_error {
-		return errors.New("Error parsing tokens")
+		return errors.New("error parsing tokens")
 	}
 	return nil
 }
@@ -181,7 +193,7 @@ func (parser *Parser) Matches(token_types ...TokenType) bool {
 }
 
 func (parser *Parser) Previous() Token {
-	return parser.tokens[parser.current - 1]
+	return parser.tokens[parser.current-1]
 }
 
 func (parser *Parser) StringifyExpressions() string {

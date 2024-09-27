@@ -102,14 +102,17 @@ func main() {
 	command := os.Args[1]
 
 	switch command {
-	case "tokenize": handleTokenize(); break;
-	case "parse": handleParse(); break;
-	case "evaluate": handleEvaluate(); break;
-	case "run": handleRun(); break;
+	case "tokenize":
+		handleTokenize()
+	case "parse":
+		handleParse()
+	case "evaluate":
+		handleEvaluate()
+	case "run":
+		handleRun()
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
 		os.Exit(1)
 	}
 
-	
 }

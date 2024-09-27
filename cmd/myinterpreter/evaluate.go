@@ -1,9 +1,9 @@
 package main
 
 import (
-	"math/big"
-	"fmt"
 	"errors"
+	"fmt"
+	"math/big"
 )
 
 type numberBinaryOperation func(big.Float, big.Float) interface{}
@@ -44,11 +44,11 @@ func evaluateUnaryExpression(expr Expression) (interface{}, error) {
 	case OperatorEnum.MINUS:
 		number, ok := value.(big.Float)
 		if !ok {
-			return nil, errors.New("Operand must be a number.")
+			return nil, errors.New("operand must be a number")
 		}
 		return *number.Neg(&number), nil
 	}
-	return nil, errors.New("Unknown unary operator.")
+	return nil, errors.New("unknown unary operator")
 }
 
 func evaluateBinaryExpression(expr Expression) (interface{}, error) {
@@ -61,12 +61,12 @@ func evaluateBinaryExpression(expr Expression) (interface{}, error) {
 		return nil, err
 	}
 
-	num_or_str_operation_error := errors.New("Operands must be two numbers or two strings.")
+	num_or_str_operation_error := errors.New("operands must be two numbers or two strings")
 
 	exec_number_operation := func(operation numberBinaryOperation) (interface{}, error) {
 		left, right, ok := assertNumberOperation(left_value, right_value)
 		if !ok {
-			return nil, errors.New("Operands must be numbers.")
+			return nil, errors.New("operands must be numbers")
 		}
 		return operation(left, right), nil
 	}
@@ -131,7 +131,7 @@ func evaluateBinaryExpression(expr Expression) (interface{}, error) {
 		}
 		return true, nil
 	}
-	return nil, errors.New("Unkown binary operator.")
+	return nil, errors.New("unkown binary operator")
 }
 
 func assertNumberOperation(left_value interface{}, right_value interface{}) (big.Float, big.Float, bool) {
@@ -162,11 +162,15 @@ func StringifyEvaluationValues(values []interface{}) []string {
 }
 
 func StringifyEvaluationValue(value interface{}) string {
-	switch literal := value.(type)	{
-	case nil:		 		return "nil"
-	case bool:	 		return fmt.Sprintf("%v", literal)
-	case string: 		return fmt.Sprintf("%s", literal)
-	case big.Float: return fmt.Sprintf("%s", literal.String())
+	switch literal := value.(type) {
+	case nil:
+		return "nil"
+	case bool:
+		return fmt.Sprintf("%v", literal)
+	case string:
+		return literal
+	case big.Float:
+		return literal.String()
 	}
 	return ""
 }
