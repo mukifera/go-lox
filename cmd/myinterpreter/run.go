@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"io"
+	"os"
 )
 
 func RunExpressions(exprs []Expression) []error {
@@ -19,6 +19,9 @@ func FRunExpressions(writer io.Writer, exprs []Expression) []error {
 	for index, expr := range exprs {
 		err := FRunExpression(writer, expr)
 		errs[index] = err
+		if err != nil {
+			break
+		}
 	}
 	return errs
 }
@@ -32,6 +35,11 @@ func FRunExpression(writer io.Writer, expr Expression) error {
 		}
 		str := StringifyEvaluationValue(value)
 		fmt.Fprintln(writer, str)
+	default:
+		_, err := EvaluateExpression(expr)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
