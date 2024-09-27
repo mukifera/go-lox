@@ -9,19 +9,21 @@ import (
 type ExpressionType int
 
 var ExpressionTypeEnum = struct {
-	UNDEFINED ExpressionType
-	LITERAL   ExpressionType
-	UNARY     ExpressionType
-	BINARY    ExpressionType
-	GROUPING  ExpressionType
-	BUILTIN   ExpressionType
+	UNDEFINED  ExpressionType
+	LITERAL    ExpressionType
+	UNARY      ExpressionType
+	BINARY     ExpressionType
+	GROUPING   ExpressionType
+	IDENTIFIER ExpressionType
+	BUILTIN    ExpressionType
 }{
-	UNDEFINED: 0,
-	LITERAL:   1,
-	UNARY:     2,
-	BINARY:    3,
-	GROUPING:  4,
-	BUILTIN:   5,
+	UNDEFINED:  0,
+	LITERAL:    1,
+	UNARY:      2,
+	BINARY:     3,
+	GROUPING:   4,
+	IDENTIFIER: 5,
+	BUILTIN:    6,
 }
 
 type Operator int
@@ -41,6 +43,7 @@ var OperatorEnum = struct {
 	GREATER_EQUAL Operator
 	SLASH         Operator
 	PRINT         Operator
+	VAR           Operator
 }{
 	UNDEFINED:     0,
 	MINUS:         1,
@@ -56,6 +59,7 @@ var OperatorEnum = struct {
 	GREATER_EQUAL: 11,
 	SLASH:         12,
 	PRINT:         13,
+	VAR:           14,
 }
 
 func (o *Operator) StringSymbol() string {
@@ -82,8 +86,12 @@ func (o *Operator) StringSymbol() string {
 		return "=="
 	case OperatorEnum.BANG_EQUAL:
 		return "!="
+	case OperatorEnum.EQUAL:
+		return "="
 	case OperatorEnum.PRINT:
 		return "print"
+	case OperatorEnum.VAR:
+		return "var"
 	}
 	return ""
 }
@@ -131,6 +139,15 @@ func NewGroupingExpression(children ...Expression) Expression {
 	return ret
 }
 
+func NewIdentifierExpression(lexeme string) Expression {
+	var ret Expression
+	ret.expression_type = ExpressionTypeEnum.IDENTIFIER
+	ret.operator = OperatorEnum.UNDEFINED
+	ret.literal = lexeme
+	ret.children = []Expression{}
+	return ret
+}
+
 func NewUndefinedExpression() Expression {
 	var ret Expression
 	ret.expression_type = ExpressionTypeEnum.UNDEFINED
@@ -143,7 +160,7 @@ func NewUndefinedExpression() Expression {
 func NewBuiltinExpression(expr Expression, operator Operator) Expression {
 	var ret Expression
 	ret.expression_type = ExpressionTypeEnum.BUILTIN
-	ret.operator = OperatorEnum.PRINT
+	ret.operator = operator
 	ret.literal = nil
 	ret.children = []Expression{expr}
 	return ret
@@ -153,7 +170,7 @@ func (e *Expression) String() string {
 	switch e.expression_type {
 	case ExpressionTypeEnum.UNDEFINED:
 		return ""
-	case ExpressionTypeEnum.LITERAL:
+	case ExpressionTypeEnum.LITERAL, ExpressionTypeEnum.IDENTIFIER:
 		return e.StringLiteral()
 	case ExpressionTypeEnum.GROUPING:
 		return fmt.Sprintf("(group %s)", e.children[0].String())

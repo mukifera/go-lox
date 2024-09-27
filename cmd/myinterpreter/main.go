@@ -54,9 +54,11 @@ func handleEvaluate() {
 		os.Exit(65)
 	}
 
+	values, errs := EvaluateExpressions(parser.expressions)
 	found_error := false
-	for _, expr := range parser.expressions {
-		value, err := EvaluateExpression(expr)
+	for i := 0; i < len(values); i++ {
+		value := values[i]
+		err := errs[i]
 		str := StringifyEvaluationValue(value)
 		if err != nil {
 			found_error = true

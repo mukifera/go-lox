@@ -64,4 +64,33 @@
     78
 
     There should be an empty line above this.
+- name: "Variable Declarations #1"
+  fileContents: |
+    var world = 10;
+    print world;
+  expected: |
+    10
+- name: "Variable Declarations #2"
+  fileContents: |
+    var bar = 99;
+    var foo = 99;
+    print bar + foo;
+    var quz = 99;
+    print bar + foo + quz;
+  expected: |
+    198
+    297
+- name: "Variable Declarations #3"
+  fileContents: |
+    var foo = (8 * (62 + 62)) / 4 + 62;
+    print foo;
+  expected: |
+    310
+- name: "Variable Declarations #4"
+  fileContents: |
+    var quz = 76;
+    var baz = quz;
+    print baz + quz;
+  expected: |
+    152
     

@@ -68,7 +68,20 @@ func (parser *Parser) Parse() error {
 }
 
 func (parser *Parser) parseExpression() Expression {
-	return parser.parseEquality()
+	return parser.parseAssignment()
+}
+
+func (parser *Parser) parseAssignment() Expression {
+	expr := parser.parseEquality()
+
+	for parser.Matches(EQUAL) {
+		token_type := parser.Previous().token_type
+		operator := tokenTypeToOperator(token_type)
+		right := parser.parseEquality()
+		top := NewBinaryExpression(expr, right, operator)
+		expr = top
+	}
+	return expr
 }
 
 func (parser *Parser) parseEquality() Expression {
@@ -143,12 +156,25 @@ func (parser *Parser) parsePrimary() Expression {
 	if parser.Matches(NIL) {
 		return NewLiteralExpression(nil)
 	}
-	if parser.Matches(NUMBER, STRING, IDENTIFIER) {
+	if parser.Matches(NUMBER, STRING) {
 		return NewLiteralExpression(parser.Previous().literal)
+	}
+	if parser.Matches(IDENTIFIER) {
+		return NewIdentifierExpression(parser.Previous().lexeme)
 	}
 	if parser.Matches(PRINT) {
 		expr := parser.parseExpression()
 		return NewBuiltinExpression(expr, OperatorEnum.PRINT)
+	}
+	if parser.Matches(VAR) {
+		expr := parser.parseExpression()
+		if expr.expression_type != ExpressionTypeEnum.BINARY ||
+			expr.operator != OperatorEnum.EQUAL ||
+			expr.children[0].expression_type != ExpressionTypeEnum.IDENTIFIER {
+			fmt.Fprintf(os.Stderr, "Error: Invalid variable declaration.\n")
+			parser.has_error = true
+		}
+		return NewBuiltinExpression(expr, OperatorEnum.VAR)
 	}
 	if parser.Matches(LEFT_PAREN) {
 		expr := parser.parseExpression()

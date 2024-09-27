@@ -9,32 +9,39 @@ import (
 type numberBinaryOperation func(big.Float, big.Float) interface{}
 
 func EvaluateExpressions(exprs []Expression) ([]interface{}, []error) {
+	var scope map[string]interface{}
 	values := make([]interface{}, len(exprs))
 	errs := make([]error, len(exprs))
 	for index, expr := range exprs {
-		value, err := EvaluateExpression(expr)
+		value, err := EvaluateExpression(expr, scope)
 		values[index] = value
 		errs[index] = err
 	}
 	return values, errs
 }
 
-func EvaluateExpression(expr Expression) (interface{}, error) {
+func EvaluateExpression(expr Expression, scope map[string]interface{}) (interface{}, error) {
 	switch expr.expression_type {
 	case ExpressionTypeEnum.LITERAL:
 		return expr.literal, nil
 	case ExpressionTypeEnum.GROUPING:
-		return EvaluateExpression(expr.children[0])
+		return EvaluateExpression(expr.children[0], scope)
 	case ExpressionTypeEnum.UNARY:
-		return evaluateUnaryExpression(expr)
+		return evaluateUnaryExpression(expr, scope)
 	case ExpressionTypeEnum.BINARY:
-		return evaluateBinaryExpression(expr)
+		return evaluateBinaryExpression(expr, scope)
+	case ExpressionTypeEnum.IDENTIFIER:
+		value, ok := scope[expr.literal.(string)]
+		if !ok {
+			value = nil
+		}
+		return value, nil
 	}
 	return nil, nil
 }
 
-func evaluateUnaryExpression(expr Expression) (interface{}, error) {
-	value, err := EvaluateExpression(expr.children[0])
+func evaluateUnaryExpression(expr Expression, scope map[string]interface{}) (interface{}, error) {
+	value, err := EvaluateExpression(expr.children[0], scope)
 	if err != nil {
 		return nil, err
 	}
@@ -51,12 +58,12 @@ func evaluateUnaryExpression(expr Expression) (interface{}, error) {
 	return nil, errors.New("unknown unary operator")
 }
 
-func evaluateBinaryExpression(expr Expression) (interface{}, error) {
-	left_value, err := EvaluateExpression(expr.children[0])
+func evaluateBinaryExpression(expr Expression, scope map[string]interface{}) (interface{}, error) {
+	left_value, err := EvaluateExpression(expr.children[0], scope)
 	if err != nil {
 		return nil, err
 	}
-	right_value, err := EvaluateExpression(expr.children[1])
+	right_value, err := EvaluateExpression(expr.children[1], scope)
 	if err != nil {
 		return nil, err
 	}
