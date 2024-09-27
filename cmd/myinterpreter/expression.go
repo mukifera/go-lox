@@ -9,78 +9,90 @@ import (
 type ExpressionType int
 
 var ExpressionTypeEnum = struct {
-	UNDEFINED  ExpressionType
-	LITERAL 	 ExpressionType
-	UNARY			 ExpressionType
-	BINARY		 ExpressionType
-	GROUPING	 ExpressionType
-	BUILTIN		 ExpressionType
+	UNDEFINED ExpressionType
+	LITERAL   ExpressionType
+	UNARY     ExpressionType
+	BINARY    ExpressionType
+	GROUPING  ExpressionType
+	BUILTIN   ExpressionType
 }{
 	UNDEFINED: 0,
-	LITERAL:	 1,
-	UNARY:		 2,
-	BINARY:		 3,
-	GROUPING:	 4,
-	BUILTIN:	 5,
+	LITERAL:   1,
+	UNARY:     2,
+	BINARY:    3,
+	GROUPING:  4,
+	BUILTIN:   5,
 }
 
 type Operator int
 
 var OperatorEnum = struct {
-	UNDEFINED				Operator
-	MINUS 					Operator
-	PLUS 						Operator
-	STAR 						Operator
-	EQUAL 					Operator
-	EQUAL_EQUAL 		Operator
-	BANG 						Operator
-	BANG_EQUAL 			Operator
-	LESS 						Operator
-	LESS_EQUAL 			Operator
-	GREATER 				Operator
-	GREATER_EQUAL 	Operator
-	SLASH 					Operator
-	PRINT						Operator
+	UNDEFINED     Operator
+	MINUS         Operator
+	PLUS          Operator
+	STAR          Operator
+	EQUAL         Operator
+	EQUAL_EQUAL   Operator
+	BANG          Operator
+	BANG_EQUAL    Operator
+	LESS          Operator
+	LESS_EQUAL    Operator
+	GREATER       Operator
+	GREATER_EQUAL Operator
+	SLASH         Operator
+	PRINT         Operator
 }{
-	UNDEFINED:			0,
-	MINUS:					1,
-	PLUS:						2,
-	STAR:						3,
-	EQUAL:					4,
-	EQUAL_EQUAL:		5,
-	BANG:						6,
-	BANG_EQUAL:			7,
-	LESS:						8,
-	LESS_EQUAL:			9,
-	GREATER:				10,
-	GREATER_EQUAL:	11,
-	SLASH:					12,
-	PRINT:					13,
+	UNDEFINED:     0,
+	MINUS:         1,
+	PLUS:          2,
+	STAR:          3,
+	EQUAL:         4,
+	EQUAL_EQUAL:   5,
+	BANG:          6,
+	BANG_EQUAL:    7,
+	LESS:          8,
+	LESS_EQUAL:    9,
+	GREATER:       10,
+	GREATER_EQUAL: 11,
+	SLASH:         12,
+	PRINT:         13,
 }
 
 func (o *Operator) StringSymbol() string {
 	switch *o {
-	case OperatorEnum.BANG: return "!"
-	case OperatorEnum.MINUS: return "-"
-	case OperatorEnum.STAR: return "*"
-	case OperatorEnum.SLASH: return "/"
-	case OperatorEnum.PLUS: return "+"
-	case OperatorEnum.LESS: return "<"
-	case OperatorEnum.LESS_EQUAL: return "<="
-	case OperatorEnum.GREATER: return ">"
-	case OperatorEnum.GREATER_EQUAL: return ">="
-	case OperatorEnum.EQUAL_EQUAL: return "=="
-	case OperatorEnum.BANG_EQUAL: return "!="
-	case OperatorEnum.PRINT: return "print"
+	case OperatorEnum.BANG:
+		return "!"
+	case OperatorEnum.MINUS:
+		return "-"
+	case OperatorEnum.STAR:
+		return "*"
+	case OperatorEnum.SLASH:
+		return "/"
+	case OperatorEnum.PLUS:
+		return "+"
+	case OperatorEnum.LESS:
+		return "<"
+	case OperatorEnum.LESS_EQUAL:
+		return "<="
+	case OperatorEnum.GREATER:
+		return ">"
+	case OperatorEnum.GREATER_EQUAL:
+		return ">="
+	case OperatorEnum.EQUAL_EQUAL:
+		return "=="
+	case OperatorEnum.BANG_EQUAL:
+		return "!="
+	case OperatorEnum.PRINT:
+		return "print"
 	}
 	return ""
 }
 
 type Expression struct {
 	expression_type ExpressionType
-	operator Operator
-	literal interface{}
-	children []Expression
+	operator        Operator
+	literal         interface{}
+	children        []Expression
 }
 
 func NewBinaryExpression(left Expression, right Expression, operator Operator) Expression {
@@ -88,7 +100,7 @@ func NewBinaryExpression(left Expression, right Expression, operator Operator) E
 	ret.expression_type = ExpressionTypeEnum.BINARY
 	ret.operator = operator
 	ret.literal = nil
-	ret.children = []Expression{ left, right }
+	ret.children = []Expression{left, right}
 	return ret
 }
 
@@ -97,7 +109,7 @@ func NewUnaryExpression(expr Expression, operator Operator) Expression {
 	ret.expression_type = ExpressionTypeEnum.UNARY
 	ret.operator = operator
 	ret.literal = nil
-	ret.children = []Expression{ expr }
+	ret.children = []Expression{expr}
 	return ret
 }
 
@@ -133,7 +145,7 @@ func NewBuiltinExpression(expr Expression, operator Operator) Expression {
 	ret.expression_type = ExpressionTypeEnum.BUILTIN
 	ret.operator = OperatorEnum.PRINT
 	ret.literal = nil
-	ret.children = []Expression{ expr }
+	ret.children = []Expression{expr}
 	return ret
 }
 
@@ -158,8 +170,10 @@ func (e *Expression) String() string {
 func (e *Expression) StringLiteral() string {
 	formatted := ""
 	switch t := e.literal.(type) {
-	case int: return fmt.Sprintf("%d", t);
-	case string: return t;
+	case int:
+		return fmt.Sprintf("%d", t)
+	case string:
+		return t
 	case big.Float:
 		formatted := t.String()
 		if !strings.Contains(formatted, ".") {

@@ -4,9 +4,9 @@ import "testing"
 
 func TestExpressionParsing(t *testing.T) {
 	tests := []struct {
-		name string
+		name         string
 		fileContents string
-		expected string
+		expected     string
 	}{
 		{"Booleans/true", "true", "true"},
 		{"Booleans/false", "false", "false"},

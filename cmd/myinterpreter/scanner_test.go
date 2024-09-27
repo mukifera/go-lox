@@ -4,9 +4,9 @@ import "testing"
 
 func TestTokenization(t *testing.T) {
 	tests := []struct {
-		name string
+		name         string
 		fileContents string
-		expected string
+		expected     string
 	}{
 		{"Empty", "", "EOF  null"},
 		{"Parentheses", "(()", "LEFT_PAREN ( null\nLEFT_PAREN ( null\nRIGHT_PAREN ) null\nEOF  null"},

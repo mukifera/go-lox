@@ -86,14 +86,16 @@ func (tt TokenType) String() string {
 
 type Token struct {
 	token_type TokenType
-	lexeme string
-	literal interface{}
+	lexeme     string
+	literal    interface{}
 }
 
-func (t Token) StringLiteral () string {
+func (t Token) StringLiteral() string {
 	switch literal := t.literal.(type) {
-	case int: return fmt.Sprintf("%d", literal);
-	case string: return literal;
+	case int:
+		return fmt.Sprintf("%d", literal)
+	case string:
+		return literal
 	case big.Float:
 		formatted := literal.String()
 		if !strings.Contains(formatted, ".") {
@@ -104,7 +106,7 @@ func (t Token) StringLiteral () string {
 	return "null"
 }
 
-func (t Token) String () string {
+func (t Token) String() string {
 	token_string := fmt.Sprintf("%s %s ", t.token_type.String(), t.lexeme)
 	token_string += t.StringLiteral()
 	return token_string
