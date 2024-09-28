@@ -12,37 +12,40 @@ func EvaluateExpressions(exprs []Expression) ([]interface{}, []error) {
 	var scope map[string]interface{}
 	values := make([]interface{}, len(exprs))
 	errs := make([]error, len(exprs))
+	context := []map[string]interface{}{scope}
 	for index, expr := range exprs {
-		value, err := EvaluateExpression(expr, scope)
+		value, err := EvaluateExpression(expr, context)
 		values[index] = value
 		errs[index] = err
 	}
 	return values, errs
 }
 
-func EvaluateExpression(expr Expression, scope map[string]interface{}) (interface{}, error) {
+func EvaluateExpression(expr Expression, context []map[string]interface{}) (interface{}, error) {
 	switch expr.expression_type {
 	case ExpressionTypeEnum.LITERAL:
 		return expr.literal, nil
 	case ExpressionTypeEnum.GROUPING:
-		return EvaluateExpression(expr.children[0], scope)
+		return EvaluateExpression(expr.children[0], context)
 	case ExpressionTypeEnum.UNARY:
-		return evaluateUnaryExpression(expr, scope)
+		return evaluateUnaryExpression(expr, context)
 	case ExpressionTypeEnum.BINARY:
-		return evaluateBinaryExpression(expr, scope)
+		return evaluateBinaryExpression(expr, context)
 	case ExpressionTypeEnum.IDENTIFIER:
 		variable := expr.literal.(string)
-		value, ok := scope[variable]
-		if !ok {
-			return nil, fmt.Errorf("undefined variable '%s'", variable)
+		for i := len(context) - 1; i >= 0; i-- {
+			value, ok := context[i][variable]
+			if ok {
+				return value, nil
+			}
 		}
-		return value, nil
+		return nil, fmt.Errorf("undefined variable '%s'", variable)
 	}
 	return nil, nil
 }
 
-func evaluateUnaryExpression(expr Expression, scope map[string]interface{}) (interface{}, error) {
-	value, err := EvaluateExpression(expr.children[0], scope)
+func evaluateUnaryExpression(expr Expression, context []map[string]interface{}) (interface{}, error) {
+	value, err := EvaluateExpression(expr.children[0], context)
 	if err != nil {
 		return nil, err
 	}
@@ -59,12 +62,12 @@ func evaluateUnaryExpression(expr Expression, scope map[string]interface{}) (int
 	return nil, errors.New("unknown unary operator")
 }
 
-func evaluateBinaryExpression(expr Expression, scope map[string]interface{}) (interface{}, error) {
-	left_value, err := EvaluateExpression(expr.children[0], scope)
+func evaluateBinaryExpression(expr Expression, context []map[string]interface{}) (interface{}, error) {
+	left_value, err := EvaluateExpression(expr.children[0], context)
 	if err != nil {
 		return nil, err
 	}
-	right_value, err := EvaluateExpression(expr.children[1], scope)
+	right_value, err := EvaluateExpression(expr.children[1], context)
 	if err != nil {
 		return nil, err
 	}
@@ -143,11 +146,13 @@ func evaluateBinaryExpression(expr Expression, scope map[string]interface{}) (in
 			return nil, errors.New("left hand side of an assignment operator must be an identifier")
 		}
 		variable := expr.children[0].StringLiteral()
-		if _, ok := scope[variable]; !ok {
-			return nil, fmt.Errorf("variable %s was not declared before assignment", variable)
+		for i := len(context) - 1; i >= 0; i-- {
+			if _, ok := context[i][variable]; ok {
+				context[i][variable] = right_value
+				return right_value, nil
+			}
 		}
-		scope[variable] = right_value
-		return right_value, nil
+		return nil, fmt.Errorf("variable %s was not declared before assignment", variable)
 	}
 	return nil, errors.New("unkown binary operator")
 }

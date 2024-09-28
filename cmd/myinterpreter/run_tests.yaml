@@ -281,3 +281,96 @@
 #     }
 #   expectedError: |-
 #     Error: Unmatched curly brace.
+- name: "Scopes #1"
+  fileContents: |
+    var baz = (91 * 16) - 61;
+    {
+        var world = "quz" + "89";
+        print world;
+    }
+    print baz;
+  expectedOutput: |
+    quz89
+    1395
+- name: "Scopes #2"
+  fileContents: |
+    {
+        var quz = "before";
+        {
+            var quz = "after";
+            print quz;
+        }
+        print quz;
+    }
+  expectedOutput: |
+    after
+    before
+- name: "Scopes #3"
+  fileContents: |
+    var bar = "global bar";
+    var world = "global world";
+    var hello = "global hello";
+    {
+      var bar = "outer bar";
+      var world = "outer world";
+      {
+        var bar = "inner bar";
+        print bar;
+        print world;
+        print hello;
+      }
+      print bar;
+      print world;
+      print hello;
+    }
+    print bar;
+    print world;
+    print hello;
+  expectedOutput: |
+    inner bar
+    outer world
+    global hello
+    outer bar
+    outer world
+    global hello
+    global bar
+    global world
+    global hello
+- name: "Scopes #4"
+  fileContents: |
+    {
+      var hello = "outer hello";
+      {
+        var hello = "inner hello";
+        print hello;
+      }
+      print hello;
+    }
+    print hello;
+  expectedOutput: |
+    inner hello
+    outer hello
+  expectedError: |-
+    undefined variable 'hello'
+- name: "Scopes #5"
+  fileContents: |
+    {
+        var hello = "outer hello";
+        var baz = "outer baz";
+        {
+            hello = "modified hello";
+            var baz = "inner baz";
+            print hello;
+            print baz;
+        }
+        print hello;
+        print baz;
+    }
+    print baz;
+  expectedOutput: |
+    modified hello
+    inner baz
+    modified hello
+    outer baz
+  expectedError: |-
+    undefined variable 'baz'
