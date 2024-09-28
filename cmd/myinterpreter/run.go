@@ -56,6 +56,19 @@ func FRunExpression(writer io.Writer, expr Expression, scope map[string]interfac
 		scope[variable] = value
 
 	default:
+		if expr.expression_type == ExpressionTypeEnum.SCOPE {
+			newScope := make(map[string]interface{})
+			for key, value := range scope {
+				newScope[key] = value
+			}
+			for _, child := range expr.children {
+				err := FRunExpression(writer, child, newScope)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
 		_, err := EvaluateExpression(expr, scope)
 		if err != nil {
 			return err

@@ -237,4 +237,47 @@
     130
     130
     130
-    
+- name: "Blocks #1"
+  fileContents: |
+    {
+        var hello = "baz";
+        print hello;
+    }
+  expectedOutput: |
+    baz
+- name: "Blocks #2"
+  fileContents: |
+    {
+        var world = "before";
+        print world;
+    }
+    {
+        var world = "after";
+        print world;
+    }
+  expectedOutput: |
+    before
+    after
+- name: "Blocks #3"
+  fileContents: |
+    {
+        var hello = 88;
+        {
+            var foo = 88;
+            print foo;
+        }
+        print hello;
+    }
+  expectedOutput: |
+    88
+    88
+# - name: "Blocks #4"
+#   fileContents: |
+#     {
+#         var bar = 11;
+#         var world = 11;
+#         {
+#             print bar + world;
+#     }
+#   expectedError: |-
+#     Error: Unmatched curly brace.

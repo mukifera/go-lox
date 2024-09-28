@@ -53,18 +53,37 @@ func tokenTypeToOperator(token_type TokenType) Operator {
 }
 
 func (parser *Parser) Parse() error {
-	for !parser.AtEnd() {
-		expr := parser.parseExpression()
-		if !parser.AtEnd() && !parser.Matches(SEMICOLON) {
-			fmt.Fprintf(os.Stderr, "Error: Expected semicolon.\n")
-			parser.has_error = true
-		}
-		parser.expressions = append(parser.expressions, expr)
-	}
+	parser.expressions = parser.parseStatements()
 	if parser.has_error {
 		return errors.New("error parsing tokens")
 	}
 	return nil
+}
+
+func (parser *Parser) parseStatements() []Expression {
+	exprs := make([]Expression, 0)
+	for !parser.AtEnd() {
+		var expr Expression
+		if parser.Matches(LEFT_BRACE) {
+			sub := parser.parseStatements()
+			if !parser.Matches(RIGHT_BRACE) {
+				fmt.Fprintf(os.Stderr, "Error: Unmatched curly brace.\n")
+				parser.has_error = true
+			}
+			expr = NewScopeExpression(sub...)
+		} else {
+			expr = parser.parseExpression()
+			if !parser.AtEnd() && !parser.Matches(SEMICOLON) {
+				fmt.Fprintf(os.Stderr, "Error: Expected semicolon.\n")
+				parser.has_error = true
+			}
+		}
+		exprs = append(exprs, expr)
+		if parser.Peek().token_type == RIGHT_BRACE {
+			break
+		}
+	}
+	return exprs
 }
 
 func (parser *Parser) parseExpression() Expression {

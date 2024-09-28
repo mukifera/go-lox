@@ -16,6 +16,7 @@ var ExpressionTypeEnum = struct {
 	GROUPING   ExpressionType
 	IDENTIFIER ExpressionType
 	BUILTIN    ExpressionType
+	SCOPE      ExpressionType
 }{
 	UNDEFINED:  0,
 	LITERAL:    1,
@@ -24,6 +25,7 @@ var ExpressionTypeEnum = struct {
 	GROUPING:   4,
 	IDENTIFIER: 5,
 	BUILTIN:    6,
+	SCOPE:      7,
 }
 
 type Operator int
@@ -139,6 +141,15 @@ func NewGroupingExpression(children ...Expression) Expression {
 	return ret
 }
 
+func NewScopeExpression(children ...Expression) Expression {
+	var ret Expression
+	ret.expression_type = ExpressionTypeEnum.SCOPE
+	ret.operator = OperatorEnum.UNDEFINED
+	ret.literal = nil
+	ret.children = children
+	return ret
+}
+
 func NewIdentifierExpression(lexeme string) Expression {
 	var ret Expression
 	ret.expression_type = ExpressionTypeEnum.IDENTIFIER
@@ -174,6 +185,13 @@ func (e *Expression) String() string {
 		return e.StringLiteral()
 	case ExpressionTypeEnum.GROUPING:
 		return fmt.Sprintf("(group %s)", e.children[0].String())
+	case ExpressionTypeEnum.SCOPE:
+		str := "(scope"
+		for _, child := range e.children {
+			str = str + " " + child.String()
+		}
+		str = str + ")"
+		return str
 	default:
 		str := fmt.Sprintf("(%s", e.operator.StringSymbol())
 		for _, child := range e.children {
