@@ -1,0 +1,132 @@
+- name: "Empty"
+  fileContents: ""
+  expectedOutput: |-
+    EOF  null
+- name: "Parentheses"
+  fileContents: |
+    (()
+  expectedOutput: |-
+    LEFT_PAREN ( null
+    LEFT_PAREN ( null
+    RIGHT_PAREN ) null
+    EOF  null
+- name: "Braces"
+  fileContents: |
+    {{}}
+  expectedOutput: |-
+    LEFT_BRACE { null
+    LEFT_BRACE { null
+    RIGHT_BRACE } null
+    RIGHT_BRACE } null
+    EOF  null
+- name: "Single Character Tokens"
+  fileContents: |
+    ({*.,+*});
+  expectedOutput: |-
+    LEFT_PAREN ( null
+    LEFT_BRACE { null
+    STAR * null
+    DOT . null
+    COMMA , null
+    PLUS + null
+    STAR * null
+    RIGHT_BRACE } null
+    RIGHT_PAREN ) null
+    SEMICOLON ; null
+    EOF  null
+- name: "Assignment And Equality"
+  fileContents: |
+    ={===}
+  expectedOutput: |-
+    EQUAL = null
+    LEFT_BRACE { null
+    EQUAL_EQUAL == null
+    EQUAL = null
+    RIGHT_BRACE } null
+    EOF  null
+- name: "Negation And Inequality"
+  fileContents: |
+    !!===
+  expectedOutput: |-
+    BANG ! null
+    BANG_EQUAL != null
+    EQUAL_EQUAL == null
+    EOF  null
+- name: "Relational Operators"
+  fileContents: |
+    <<=>>=
+  expectedOutput: |-
+    LESS < null
+    LESS_EQUAL <= null
+    GREATER > null
+    GREATER_EQUAL >= null
+    EOF  null
+- name: "Comments"
+  fileContents: |
+    () // Comment
+  expectedOutput: |-
+    LEFT_PAREN ( null
+    RIGHT_PAREN ) null
+    EOF  null
+- name: "Division Operator"
+  fileContents: |
+    /()
+  expectedOutput: |-
+    SLASH / null
+    LEFT_PAREN ( null
+    RIGHT_PAREN ) null
+    EOF  null
+- name: "Whitespaces"
+  fileContents: "(\t )"
+  expectedOutput: |-
+    LEFT_PAREN ( null
+    RIGHT_PAREN ) null
+    EOF  null
+- name: "String Literals"
+  fileContents: |
+    "foo baz"
+  expectedOutput: |-
+    STRING "foo baz" foo baz
+    EOF  null
+- name: "Number Literals"
+  fileContents: |
+    42 1234.1234
+  expectedOutput: |-
+    NUMBER 42 42.0
+    NUMBER 1234.1234 1234.1234
+    EOF  null
+- name: "Identifiers"
+  fileContents: |
+    foo bar _hello
+  expectedOutput: |-
+    IDENTIFIER foo null
+    IDENTIFIER bar null
+    IDENTIFIER _hello null
+    EOF  null
+- name: "Reserved Words"
+  fileContents: |
+    and class else false for fun if nil or print return super this true var while
+  expectedOutput: |-
+    AND and null
+    CLASS class null
+    ELSE else null
+    FALSE false null
+    FOR for null
+    FUN fun null
+    IF if null
+    NIL nil null
+    OR or null
+    PRINT print null
+    RETURN return null
+    SUPER super null
+    THIS this null
+    TRUE true null
+    VAR var null
+    WHILE while null
+    EOF  null
+- name: "Non-ASCII characters"
+  fileContents: |
+    "Señor"
+  expectedOutput: |
+    STRING "Señor" Señor
+    EOF  null
