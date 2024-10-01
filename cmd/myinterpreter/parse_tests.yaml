@@ -1,0 +1,60 @@
+- name: "Booleans/true"
+  fileContents: |
+    true
+  expectedOutput: |-
+    true
+- name: "Booleans/false"
+  fileContents: |
+    false
+  expectedOutput: |-
+    false
+- name: "Nil"
+  fileContents: |
+    nil
+  expectedOutput: |-
+    nil
+- name: "Number Literals"
+  fileContents: |
+    42.47
+  expectedOutput: |-
+    42.47
+- name: "String Literals"
+  fileContents: |
+    "hello"
+  expectedOutput: |-
+    hello
+- name: "Parentheses"
+  fileContents: |
+    ("foo")
+  expectedOutput: |-
+    (group foo)
+- name: "Unary/Negation"
+  fileContents: |
+    -5
+  expectedOutput: |-
+    (- 5.0)
+- name: "Unary/Not"
+  fileContents: |
+    !true
+  expectedOutput: |-
+    (! true)
+- name: "Arithmetic/Multiplication And Division"
+  fileContents: |
+    16 * 38 / 58
+  expectedOutput: |-
+    (/ (* 16.0 38.0) 58.0)
+- name: "Arithmetic/Addtion And Subtraction"
+  fileContents: |
+    52 + 80 - 94
+  expectedOutput: |-
+    (- (+ 52.0 80.0) 94.0)
+- name: "Comparision Operators"
+  fileContents: |
+    83 < 99 > 115 <= 11 >= 1
+  expectedOutput: |-
+    (>= (<= (> (< 83.0 99.0) 115.0) 11.0) 1.0)
+- name: "Equality Operators"
+  fileContents: |
+    "baz" == "baz" != "bar"
+  expectedOutput: |-
+    (!= (== baz baz) bar)
