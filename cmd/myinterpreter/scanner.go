@@ -188,7 +188,7 @@ func (scanner *Scanner) Scan() []error {
 			string_literal := ""
 			for {
 				if scanner.AtEnd() {
-					err := fmt.Errorf("[line %d] Error: Unterminated string", line)
+					err := fmt.Errorf("[line %d] Error: Unterminated string.", line)
 					errs = append(errs, err)
 					break
 				}

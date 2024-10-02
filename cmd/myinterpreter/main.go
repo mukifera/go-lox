@@ -34,6 +34,9 @@ func handleTokenize() {
 	errs := scanner.Scan()
 	fmt.Println(scanner.StringifyTokens())
 	if len(errs) != 0 {
+		for _, err := range errs {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+		}
 		os.Exit(65)
 	}
 }
