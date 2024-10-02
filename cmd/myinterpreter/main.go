@@ -43,8 +43,8 @@ func handleTokenize() {
 
 func handleParse() {
 	parser := setupParser()
-	errs := parser.Parse()
-	if len(errs) != 0 {
+	err := parser.Parse()
+	if err != nil {
 		os.Exit(65)
 	}
 	fmt.Print(parser.StringifyExpressions())
@@ -52,8 +52,8 @@ func handleParse() {
 
 func handleEvaluate() {
 	parser := setupParser()
-	errs := parser.Parse()
-	if len(errs) != 0 {
+	err := parser.Parse()
+	if err != nil {
 		os.Exit(65)
 	}
 
@@ -78,21 +78,15 @@ func handleEvaluate() {
 
 func handleRun() {
 	parser := setupParser()
-	errs := parser.Parse()
-	if len(errs) != 0 {
+	err := parser.Parse()
+	if err != nil {
 		os.Exit(65)
 	}
 
-	errs = RunExpressions(parser.expressions)
+	err = RunExpressions(parser.expressions)
 
-	found_error := false
-	for _, err := range errs {
-		if err != nil {
-			found_error = true
-			fmt.Fprintf(os.Stderr, "%v\n", err)
-		}
-	}
-	if found_error {
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(70)
 	}
 }

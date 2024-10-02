@@ -33,17 +33,11 @@ func TestRuntime(t *testing.T) {
 		t.Run(tt.Name, func(t *testing.T) {
 			exprs := getExpressions(tt.FileContents, t)
 			var buf bytes.Buffer
-			errors := FRunExpressions(&buf, exprs)
+			err := FRunExpressions(&buf, exprs)
 			actual_output := buf.String()
 			actual_err := ""
-			for _, err := range errors {
-				if err == nil {
-					continue
-				}
-				if len(actual_err) > 0 {
-					actual_err += "\n"
-				}
-				actual_err += err.Error()
+			if err != nil {
+				actual_err = err.Error()
 			}
 
 			if tt.ExpectedOutput != actual_output {

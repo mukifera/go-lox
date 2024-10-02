@@ -48,30 +48,31 @@ func tokenTypeToOperator(token_type TokenType) Operator {
 	return OperatorEnum.UNDEFINED
 }
 
-func (parser *Parser) Parse() []error {
-	var errs []error
-	parser.expressions, errs = parser.parseStatements()
-	return errs
+func (parser *Parser) Parse() error {
+	var err error
+	parser.expressions, err = parser.parseStatements()
+	return err
 }
 
-func (parser *Parser) parseStatements() ([]Expression, []error) {
+func (parser *Parser) parseStatements() ([]Expression, error) {
 	exprs := make([]Expression, 0)
-	errs := make([]error, 0)
+	var err error = nil
 	for !parser.AtEnd() {
 		var expr Expression
+		var sub_err error
+		var sub_exprs []Expression
 		if parser.Matches(LEFT_BRACE) {
-			sub_exprs, sub_errs := parser.parseStatements()
-			errs = append(errs, sub_errs...)
+			sub_exprs, sub_err = parser.parseStatements()
+			err = errors.Join(err, sub_err)
 			if !parser.Matches(RIGHT_BRACE) {
-				errs = append(errs, errors.New("Error: Unmatched curly brace"))
+				err = errors.Join(err, errors.New("Error: Unmatched curly brace"))
 			}
 			expr = NewScopeExpression(sub_exprs...)
 		} else {
-			var sub_errs []error
-			expr, sub_errs = parser.parseExpression()
-			errs = append(errs, sub_errs...)
+			expr, sub_err = parser.parseExpression()
+			err = errors.Join(err, sub_err)
 			if !parser.AtEnd() && !parser.Matches(SEMICOLON) {
-				errs = append(errs, errors.New("Error: Expected semicolon"))
+				err = errors.Join(err, errors.New("Error: Expected semicolon"))
 			}
 		}
 		exprs = append(exprs, expr)
@@ -79,22 +80,22 @@ func (parser *Parser) parseStatements() ([]Expression, []error) {
 			break
 		}
 	}
-	return exprs, errs
+	return exprs, err
 }
 
-func (parser *Parser) parseExpression() (Expression, []error) {
+func (parser *Parser) parseExpression() (Expression, error) {
 	return parser.parseAssignment()
 }
 
-func (parser *Parser) parseAssignment() (Expression, []error) {
-	expr, errs := parser.parseEquality()
+func (parser *Parser) parseAssignment() (Expression, error) {
+	expr, err := parser.parseEquality()
 
 	exprs := []Expression{expr}
 
 	for parser.Matches(EQUAL) {
-		right, sub_errs := parser.parseEquality()
+		right, sub_err := parser.parseEquality()
 		exprs = append(exprs, right)
-		errs = append(errs, sub_errs...)
+		err = errors.Join(err, sub_err)
 	}
 
 	for i := len(exprs) - 2; i >= 0; i-- {
@@ -103,83 +104,83 @@ func (parser *Parser) parseAssignment() (Expression, []error) {
 		exprs[i] = top
 	}
 
-	return exprs[0], errs
+	return exprs[0], err
 }
 
-func (parser *Parser) parseEquality() (Expression, []error) {
-	expr, errs := parser.parseComparison()
+func (parser *Parser) parseEquality() (Expression, error) {
+	expr, err := parser.parseComparison()
 
 	for parser.Matches(EQUAL_EQUAL, BANG_EQUAL) {
 		token_type := parser.Previous().token_type
 		operator := tokenTypeToOperator(token_type)
-		right, sub_errs := parser.parseComparison()
+		right, sub_err := parser.parseComparison()
 		top := NewBinaryExpression(expr, right, operator)
 		expr = top
-		errs = append(errs, sub_errs...)
+		err = errors.Join(err, sub_err)
 	}
-	return expr, errs
+	return expr, err
 }
 
-func (parser *Parser) parseComparison() (Expression, []error) {
-	expr, errs := parser.parseAddSub()
+func (parser *Parser) parseComparison() (Expression, error) {
+	expr, err := parser.parseAddSub()
 
 	for parser.Matches(LESS, LESS_EQUAL, GREATER, GREATER_EQUAL) {
 		var token_type TokenType = parser.Previous().token_type
 		var operator Operator = tokenTypeToOperator(token_type)
 		var right Expression
 		var top Expression
-		right, sub_errs := parser.parseAddSub()
+		right, sub_err := parser.parseAddSub()
 		top = NewBinaryExpression(expr, right, operator)
 		expr = top
-		errs = append(errs, sub_errs...)
+		err = errors.Join(err, sub_err)
 	}
-	return expr, errs
+	return expr, err
 }
 
-func (parser *Parser) parseAddSub() (Expression, []error) {
-	expr, errs := parser.parseMultDiv()
+func (parser *Parser) parseAddSub() (Expression, error) {
+	expr, err := parser.parseMultDiv()
 
 	for parser.Matches(PLUS, MINUS) {
 		var token_type TokenType = parser.Previous().token_type
 		var operator Operator = tokenTypeToOperator(token_type)
 		var right Expression
 		var top Expression
-		right, sub_errs := parser.parseMultDiv()
+		right, sub_err := parser.parseMultDiv()
 		top = NewBinaryExpression(expr, right, operator)
 		expr = top
-		errs = append(errs, sub_errs...)
+		err = errors.Join(err, sub_err)
 	}
-	return expr, errs
+	return expr, err
 }
 
-func (parser *Parser) parseMultDiv() (Expression, []error) {
-	expr, errs := parser.parseUnary()
+func (parser *Parser) parseMultDiv() (Expression, error) {
+	expr, err := parser.parseUnary()
 
 	for parser.Matches(STAR, SLASH) {
 		var token_type TokenType = parser.Previous().token_type
 		var operator Operator = tokenTypeToOperator(token_type)
 		var right Expression
 		var top Expression
-		right, sub_errs := parser.parseUnary()
+		right, sub_err := parser.parseUnary()
 		top = NewBinaryExpression(expr, right, operator)
 		expr = top
-		errs = append(errs, sub_errs...)
+		err = errors.Join(err, sub_err)
 	}
-	return expr, errs
+	return expr, err
 }
 
-func (parser *Parser) parseUnary() (Expression, []error) {
+func (parser *Parser) parseUnary() (Expression, error) {
 	if parser.Matches(BANG, MINUS) {
 		var token_type TokenType = parser.Previous().token_type
 		var operator Operator = tokenTypeToOperator(token_type)
 		var expr Expression
-		expr, errs := parser.parseUnary()
-		return NewUnaryExpression(expr, operator), errs
+		expr, err := parser.parseUnary()
+		return NewUnaryExpression(expr, operator), err
 	}
 	return parser.parsePrimary()
 }
 
-func (parser *Parser) parsePrimary() (Expression, []error) {
+func (parser *Parser) parsePrimary() (Expression, error) {
 	if parser.Matches(FALSE) {
 		return NewLiteralExpression(false), nil
 	}
@@ -200,23 +201,23 @@ func (parser *Parser) parsePrimary() (Expression, []error) {
 		return NewBuiltinExpression(expr, OperatorEnum.PRINT), err
 	}
 	if parser.Matches(VAR) {
-		expr, errs := parser.parseExpression()
+		expr, err := parser.parseExpression()
 		if expr.expression_type != ExpressionTypeEnum.IDENTIFIER &&
 			(expr.expression_type != ExpressionTypeEnum.BINARY ||
 				expr.operator != OperatorEnum.EQUAL ||
 				expr.children[0].expression_type != ExpressionTypeEnum.IDENTIFIER) {
-			errs = append(errs, errors.New("Error: Invalid variable declaration"))
+			err = errors.Join(err, errors.New("Error: Invalid variable declaration"))
 		}
-		return NewBuiltinExpression(expr, OperatorEnum.VAR), errs
+		return NewBuiltinExpression(expr, OperatorEnum.VAR), err
 	}
 	if parser.Matches(LEFT_PAREN) {
-		expr, errs := parser.parseExpression()
+		expr, err := parser.parseExpression()
 		if !parser.Matches(RIGHT_PAREN) {
-			errs = append(errs, errors.New("Error: Unmatched parentheses"))
+			err = errors.Join(err, errors.New("Error: Unmatched parentheses"))
 		}
-		return NewGroupingExpression(expr), errs
+		return NewGroupingExpression(expr), err
 	}
-	return NewUndefinedExpression(), []error{errors.New("Error: Unknown Token")}
+	return NewUndefinedExpression(), errors.New("Error: Unknown Token")
 }
 
 func (parser *Parser) Advance() Token {

@@ -10,9 +10,9 @@ func getExpressions(fileContents string, t *testing.T) []Expression {
 	}
 
 	parser := NewParser(scanner.tokens)
-	errs = parser.Parse()
-	if len(errs) != 0 {
-		t.Errorf("Parser: parsing error: %v", errs)
+	err := parser.Parse()
+	if err != nil {
+		t.Errorf("Parser: parsing error: %v", err)
 	}
 
 	return parser.expressions

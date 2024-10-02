@@ -1,12 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
 )
 
-func RunExpressions(exprs []Expression) []error {
+func RunExpressions(exprs []Expression) error {
 	return FRunExpressions(os.Stdout, exprs)
 }
 
@@ -14,18 +15,18 @@ func RunExpression(expr Expression, context []map[string]interface{}) error {
 	return FRunExpression(os.Stdout, expr, context)
 }
 
-func FRunExpressions(writer io.Writer, exprs []Expression) []error {
-	errs := make([]error, len(exprs))
+func FRunExpressions(writer io.Writer, exprs []Expression) error {
+	var err error = nil
 	scope := make(map[string]interface{})
 	context := []map[string]interface{}{scope}
-	for index, expr := range exprs {
-		err := FRunExpression(writer, expr, context)
-		errs[index] = err
+	for _, expr := range exprs {
+		sub_err := FRunExpression(writer, expr, context)
+		err = errors.Join(err, sub_err)
 		if err != nil {
 			break
 		}
 	}
-	return errs
+	return err
 }
 
 func FRunExpression(writer io.Writer, expr Expression, context []map[string]interface{}) error {

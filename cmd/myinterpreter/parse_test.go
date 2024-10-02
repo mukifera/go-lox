@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"gopkg.in/yaml.v2"
@@ -30,14 +31,14 @@ func TestExpressionParsing(t *testing.T) {
 
 			parser := NewParser(scanner.tokens)
 
-			errs = parser.Parse()
-			if len(errs) != 0 {
+			err = parser.Parse()
+			if err != nil {
 				t.Errorf("Parser: Error while parsing expressions")
 			}
 
-			actual := parser.StringifyExpressions()
+			actual := strings.Trim(parser.StringifyExpressions(), "\n")
 			if actual != tt.ExpectedOutput {
-				t.Errorf("Expression parsing result is incorrect\nExpected:\n\n%s\n\nGot:\n\n%s", tt.ExpectedOutput, actual)
+				t.Errorf("Expression parsing result is incorrect\nExpected:\n\n%s\nGot:\n\n%s\n", tt.ExpectedOutput, actual)
 			}
 		})
 	}
