@@ -1,0 +1,293 @@
+- name: "Literals: Boolean/true"
+  fileContents: |
+    true
+  expectedOutput: |
+    true
+- name: "Literals: Boolean/false"
+  fileContents: |
+    false
+  expectedOutput: |
+    false
+- name: "Literals: nil"
+  fileContents: |
+    nil
+  expectedOutput: |
+    nil
+- name: "Literals: Number #1"
+  fileContents: |
+    10.40
+  expectedOutput: |
+    10.4
+- name: "Literals: Number #2"
+  fileContents: |
+    10
+  expectedOutput: |
+    10
+- name: "Parentheses #1"
+  fileContents: |
+    ("hello world!")
+  expectedOutput: |
+    hello world!
+- name: "Parentheses #2"
+  fileContents: |
+    (true)
+  expectedOutput: |
+    true
+- name: "Parentheses #3"
+  fileContents: |
+    (10.40)
+  expectedOutput: |
+    10.4
+- name: "Parentheses #4"
+  fileContents: |
+    ((false))
+  expectedOutput: |
+    false
+- name: "Unary: Negation"
+  fileContents: |
+    -73
+  expectedOutput: |
+    -73
+- name: "Unary: Not #1"
+  fileContents: |
+    !true
+  expectedOutput: |
+    false
+- name: "Unary: Not #2"
+  fileContents: |
+    !10.40
+  expectedOutput: |
+    false
+- name: "Unary: Not #3"
+  fileContents: |
+    !((false))
+  expectedOutput: |
+    true
+- name: "Arithmetic #1"
+  fileContents: |
+    42 / 5
+  expectedOutput: |
+    8.4
+- name: "Arithmetic #2"
+  fileContents: |
+    18 * 3 / (3 * 6)
+  expectedOutput: |
+    3
+- name: "Arithmetic #3"
+  fileContents: |
+    (10.40 * 2) / 2
+  expectedOutput: |
+    10.4
+- name: "Arithmetic #4"
+  fileContents: |
+    70 - 65
+  expectedOutput: |
+    5
+- name: "Arithmetic #5"
+  fileContents: |
+    69 - 93
+  expectedOutput: |
+    -24
+- name: "Arithmetic #6"
+  fileContents: |
+    10.40 - 2
+  expectedOutput: |
+    8.4
+- name: "Arithmetic #6"
+  fileContents: |
+    23 + 28 - (-(61 - 99))
+  expectedOutput: |
+    13
+- name: "String Concatenation #1"
+  fileContents: |
+    "hello" + " world!"
+  expectedOutput: |
+    hello world!
+- name: "String Concatenation #2"
+  fileContents: |
+    "42" + "24"
+  expectedOutput: |
+    4224
+- name: "String Concatenation #3"
+  fileContents: |
+    "foo" + "bar"
+  expectedOutput: |
+    foobar
+- name: "Relational Operators #1"
+  fileContents: |
+    57 > -65
+  expectedOutput: |
+    true
+- name: "Relational Operators #2"
+  fileContents: |
+    11 >= 11
+  expectedOutput: |
+    true
+- name: "Relational Operators #3"
+  fileContents: |
+    (54 - 67) >= -(114 / 57 + 11)
+  expectedOutput: |
+    true
+- name: "Equality #1"
+  fileContents: |
+    "hello" == "world"
+  expectedOutput: |
+    false
+- name: "Equality #2"
+  fileContents: |
+    "foo" != "bar"
+  expectedOutput: |
+    true
+- name: "Equality #3"
+  fileContents: |
+    "foo" == "foo"
+  expectedOutput: |
+    true
+- name: "Equality #4"
+  fileContents: |
+    61 == "61"
+  expectedOutput: |
+    false
+- name: "Equality #5"
+  fileContents: |
+    61 == 61
+  expectedOutput: |
+    true
+- name: "Equality #6"
+  fileContents: |
+    61 == 10.5
+  expectedOutput: |
+    false
+- name: "Negation #1"
+  fileContents: |
+    -"foo"
+  expectedOutput: ""
+  expectedError: |
+    operand must be a number
+- name: "Negation #2"
+  fileContents: |
+    -true
+  expectedOutput: ""
+  expectedError: |
+    operand must be a number
+- name: "Negation #3"
+  fileContents: |
+    -("foo" + "bar")
+  expectedOutput: ""
+  expectedError: |
+    operand must be a number
+- name: "Negation #4"
+  fileContents: |
+    -false
+  expectedOutput: ""
+  expectedError: |
+    operand must be a number
+- name: "Multiplication #1"
+  fileContents: |
+    "foo" * 42
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+- name: "Multiplication #2"
+  fileContents: |
+    ("foo" * "bar")
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+- name: "Division #1"
+  fileContents: |
+    true / 2
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+- name: "Division #2"
+  fileContents: |
+    false / true
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+- name: "Addition #1"
+  fileContents: |
+    "foo" + true
+  expectedOutput: ""
+  expectedError: |
+    operands must be two numbers or two strings
+- name: "Addition #2"
+  fileContents: |
+    true + false
+  expectedOutput: ""
+  expectedError: |
+    operands must be two numbers or two strings
+- name: "Subtraction #1"
+  fileContents: |
+    42 - true
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+- name: "Subtraction #2"
+  fileContents: |
+    "foo" - "bar"
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+- name: "Less #1"
+  fileContents: |
+    "foo" < false
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+- name: "Less #2"
+  fileContents: |
+    true < 2
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+- name: "Less #3"
+  fileContents: |
+    ("foo" + "bar") < 42
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+- name: "Less Or Equal #1"
+  fileContents: |
+    "foo" <= false
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+- name: "Less Or Equal #2"
+  fileContents: |
+    true <= true
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+- name: "Less Or Equal #3"
+  fileContents: |
+    ("foo" + "bar") <= 42
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+- name: "Greater #1"
+  fileContents: |
+    false > true
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+- name: "Greater #2"
+  fileContents: |
+    false > "foo"
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+- name: "Greater Or Equal #1"
+  fileContents: |
+    false >= true
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+- name: "Greater Or Equal #2"
+  fileContents: |
+    "bar" >= "bar"
+  expectedOutput: ""
+  expectedError: |
+    operands must be numbers
+    

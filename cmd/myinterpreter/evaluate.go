@@ -175,13 +175,12 @@ func assertBoolOperation(left_value interface{}, right_value interface{}) (bool,
 	return left, right, left_ok && right_ok
 }
 
-func StringifyEvaluationValues(values []interface{}) []string {
-	strs := make([]string, len(values))
-	for index, value := range values {
-		str := StringifyEvaluationValue(value)
-		strs[index] = str
+func StringifyEvaluationValues(values []interface{}) string {
+	str := ""
+	for _, value := range values {
+		str += StringifyEvaluationValue(value) + "\n"
 	}
-	return strs
+	return str
 }
 
 func StringifyEvaluationValue(value interface{}) string {
