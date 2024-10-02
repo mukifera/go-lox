@@ -65,14 +65,14 @@ func (parser *Parser) parseStatements() ([]Expression, error) {
 			sub_exprs, sub_err = parser.parseStatements()
 			err = errors.Join(err, sub_err)
 			if !parser.Matches(RIGHT_BRACE) {
-				err = errors.Join(err, errors.New("Error: Unmatched curly brace"))
+				err = errors.Join(err, newParsingError("Error: Unmatched curly brace"))
 			}
 			expr = NewScopeExpression(sub_exprs...)
 		} else {
 			expr, sub_err = parser.parseExpression()
 			err = errors.Join(err, sub_err)
 			if !parser.AtEnd() && !parser.Matches(SEMICOLON) {
-				err = errors.Join(err, errors.New("Error: Expected semicolon"))
+				err = errors.Join(err, newParsingError("Error: Expected semicolon"))
 			}
 		}
 		exprs = append(exprs, expr)
@@ -206,18 +206,18 @@ func (parser *Parser) parsePrimary() (Expression, error) {
 			(expr.expression_type != ExpressionTypeEnum.BINARY ||
 				expr.operator != OperatorEnum.EQUAL ||
 				expr.children[0].expression_type != ExpressionTypeEnum.IDENTIFIER) {
-			err = errors.Join(err, errors.New("Error: Invalid variable declaration"))
+			err = errors.Join(err, newParsingError("Error: Invalid variable declaration"))
 		}
 		return NewBuiltinExpression(expr, OperatorEnum.VAR), err
 	}
 	if parser.Matches(LEFT_PAREN) {
 		expr, err := parser.parseExpression()
 		if !parser.Matches(RIGHT_PAREN) {
-			err = errors.Join(err, errors.New("Error: Unmatched parentheses"))
+			err = errors.Join(err, newParsingError("Error: Unmatched parentheses"))
 		}
 		return NewGroupingExpression(expr), err
 	}
-	return NewUndefinedExpression(), errors.New("Error: Unknown Token")
+	return NewUndefinedExpression(), newParsingError("Error: Unknown Token")
 }
 
 func (parser *Parser) Advance() Token {

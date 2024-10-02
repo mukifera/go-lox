@@ -8,17 +8,17 @@ import (
 
 type numberBinaryOperation func(big.Float, big.Float) interface{}
 
-func EvaluateExpressions(exprs []Expression) ([]interface{}, []error) {
+func EvaluateExpressions(exprs []Expression) ([]interface{}, error) {
 	var scope map[string]interface{}
 	values := make([]interface{}, len(exprs))
-	errs := make([]error, len(exprs))
+	var err error = nil
 	context := []map[string]interface{}{scope}
 	for index, expr := range exprs {
-		value, err := EvaluateExpression(expr, context)
+		value, new_err := EvaluateExpression(expr, context)
 		values[index] = value
-		errs[index] = err
+		err = errors.Join(err, new_err)
 	}
-	return values, errs
+	return values, err
 }
 
 func EvaluateExpression(expr Expression, context []map[string]interface{}) (interface{}, error) {
@@ -39,7 +39,7 @@ func EvaluateExpression(expr Expression, context []map[string]interface{}) (inte
 				return value, nil
 			}
 		}
-		return nil, fmt.Errorf("undefined variable '%s'", variable)
+		return nil, newRuntimeError(fmt.Sprintf("undefined variable '%s'", variable))
 	}
 	return nil, nil
 }
@@ -55,11 +55,11 @@ func evaluateUnaryExpression(expr Expression, context []map[string]interface{}) 
 	case OperatorEnum.MINUS:
 		number, ok := value.(big.Float)
 		if !ok {
-			return nil, errors.New("operand must be a number")
+			return nil, newRuntimeError("operand must be a number")
 		}
 		return *number.Neg(&number), nil
 	}
-	return nil, errors.New("unknown unary operator")
+	return nil, newRuntimeError("unknown unary operator")
 }
 
 func evaluateBinaryExpression(expr Expression, context []map[string]interface{}) (interface{}, error) {
@@ -72,12 +72,12 @@ func evaluateBinaryExpression(expr Expression, context []map[string]interface{})
 		return nil, err
 	}
 
-	num_or_str_operation_error := errors.New("operands must be two numbers or two strings")
+	num_or_str_operation_error := newRuntimeError("operands must be two numbers or two strings")
 
 	exec_number_operation := func(operation numberBinaryOperation) (interface{}, error) {
 		left, right, ok := assertNumberOperation(left_value, right_value)
 		if !ok {
-			return nil, errors.New("operands must be numbers")
+			return nil, newRuntimeError("operands must be numbers")
 		}
 		return operation(left, right), nil
 	}
@@ -143,7 +143,7 @@ func evaluateBinaryExpression(expr Expression, context []map[string]interface{})
 		return true, nil
 	case OperatorEnum.EQUAL:
 		if expr.children[0].expression_type != ExpressionTypeEnum.IDENTIFIER {
-			return nil, errors.New("left hand side of an assignment operator must be an identifier")
+			return nil, newRuntimeError("left hand side of an assignment operator must be an identifier")
 		}
 		variable := expr.children[0].StringLiteral()
 		for i := len(context) - 1; i >= 0; i-- {
@@ -152,9 +152,9 @@ func evaluateBinaryExpression(expr Expression, context []map[string]interface{})
 				return right_value, nil
 			}
 		}
-		return nil, fmt.Errorf("variable %s was not declared before assignment", variable)
+		return nil, newRuntimeError(fmt.Sprintf("variable %s was not declared before assignment", variable))
 	}
-	return nil, errors.New("unkown binary operator")
+	return nil, newRuntimeError("unkown binary operator")
 }
 
 func assertNumberOperation(left_value interface{}, right_value interface{}) (big.Float, big.Float, bool) {

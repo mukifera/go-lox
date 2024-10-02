@@ -24,9 +24,9 @@ func TestExpressionParsing(t *testing.T) {
 		t.Run(tt.Name, func(t *testing.T) {
 			scanner := NewScanner(tt.FileContents)
 
-			errs := scanner.Scan()
-			if len(errs) != 0 {
-				t.Errorf("Scanner: tokenizing error: %v", errs)
+			err := scanner.Scan()
+			if err != nil {
+				t.Errorf("Scanner: tokenizing error: %v", err)
 			}
 
 			parser := NewParser(scanner.tokens)

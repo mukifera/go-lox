@@ -22,22 +22,20 @@ func setupScanner() *Scanner {
 
 func setupParser() *Parser {
 	scanner := setupScanner()
-	errs := scanner.Scan()
-	if len(errs) != 0 {
-		os.Exit(65)
+	err := scanner.Scan()
+	if err != nil {
+		os.Exit(err.(loxError).code)
 	}
 	return NewParser(scanner.tokens)
 }
 
 func handleTokenize() {
 	scanner := setupScanner()
-	errs := scanner.Scan()
+	err := scanner.Scan()
 	fmt.Println(scanner.StringifyTokens())
-	if len(errs) != 0 {
-		for _, err := range errs {
-			fmt.Fprintf(os.Stderr, "%v\n", err)
-		}
-		os.Exit(65)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(err.(loxError).code)
 	}
 }
 
@@ -45,7 +43,7 @@ func handleParse() {
 	parser := setupParser()
 	err := parser.Parse()
 	if err != nil {
-		os.Exit(65)
+		os.Exit(err.(loxError).code)
 	}
 	fmt.Print(parser.StringifyExpressions())
 }
@@ -54,25 +52,19 @@ func handleEvaluate() {
 	parser := setupParser()
 	err := parser.Parse()
 	if err != nil {
-		os.Exit(65)
+		os.Exit(err.(loxError).code)
 	}
 
-	values, errs := EvaluateExpressions(parser.expressions)
-	found_error := false
+	values, err := EvaluateExpressions(parser.expressions)
 	for i := 0; i < len(values); i++ {
 		value := values[i]
-		err := errs[i]
 		str := StringifyEvaluationValue(value)
-		if err != nil {
-			found_error = true
-			fmt.Fprintf(os.Stderr, "%v\n", err)
-		} else {
-			fmt.Println(str)
-		}
+		fmt.Println(str)
 	}
 
-	if found_error {
-		os.Exit(70)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(err.(loxError).code)
 	}
 }
 
@@ -80,14 +72,14 @@ func handleRun() {
 	parser := setupParser()
 	err := parser.Parse()
 	if err != nil {
-		os.Exit(65)
+		os.Exit(err.(loxError).code)
 	}
 
 	err = RunExpressions(parser.expressions)
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		os.Exit(70)
+		os.Exit(err.(loxError).code)
 	}
 }
 

@@ -4,13 +4,13 @@ import "testing"
 
 func getExpressions(fileContents string, t *testing.T) []Expression {
 	scanner := NewScanner(fileContents)
-	errs := scanner.Scan()
-	if len(errs) != 0 {
-		t.Errorf("Scanner: tokenizing error: %v", errs)
+	err := scanner.Scan()
+	if err != nil {
+		t.Errorf("Scanner: tokenizing error: %v", err)
 	}
 
 	parser := NewParser(scanner.tokens)
-	err := parser.Parse()
+	err = parser.Parse()
 	if err != nil {
 		t.Errorf("Parser: parsing error: %v", err)
 	}
@@ -81,53 +81,41 @@ func TestEvaluationRuntimeErrors(t *testing.T) {
 	tests := []struct {
 		name         string
 		fileContents string
-		expected     []string
+		expected     string
 	}{
-		{"Negation #1", `-"foo"`, []string{"operand must be a number"}},
-		{"Negation #2", "-true", []string{"operand must be a number"}},
-		{"Negation #3", `-("foo" + "bar")`, []string{"operand must be a number"}},
-		{"Negation #4", "-false", []string{"operand must be a number"}},
-		{"Multiplication #1", `"foo" * 42`, []string{"operands must be numbers"}},
-		{"Multiplication #2", `("foo" * "bar")`, []string{"operands must be numbers"}},
-		{"Division #1", "true / 2", []string{"operands must be numbers"}},
-		{"Division #2", "false / true", []string{"operands must be numbers"}},
-		{"Addition #1", `"foo" + true`, []string{"operands must be two numbers or two strings"}},
-		{"Addition #2", "true + false", []string{"operands must be two numbers or two strings"}},
-		{"Subtraction #1", "42 - true", []string{"operands must be numbers"}},
-		{"Subtraction #2", `"foo" - "bar"`, []string{"operands must be numbers"}},
-		{"Less #1", `"foo" < false`, []string{"operands must be numbers"}},
-		{"Less #2", "true < 2", []string{"operands must be numbers"}},
-		{"Less #3", `("foo" + "bar") < 42`, []string{"operands must be numbers"}},
-		{"Less Or Equal #1", `"foo" <= false`, []string{"operands must be numbers"}},
-		{"Less Or Equal #2", "true <= true", []string{"operands must be numbers"}},
-		{"Less Or Equal #3", `("foo" + "bar") <= 42`, []string{"operands must be numbers"}},
-		{"Greater #1", "false > true", []string{"operands must be numbers"}},
-		{"Greater #2", `false > "foo"`, []string{"operands must be numbers"}},
-		{"Greater Or Equal #1", "false >= true", []string{"operands must be numbers"}},
-		{"Greater Or Equal #2", `"bar" >= "bar"`, []string{"operands must be numbers"}},
+		{"Negation #1", `-"foo"`, "operand must be a number"},
+		{"Negation #2", "-true", "operand must be a number"},
+		{"Negation #3", `-("foo" + "bar")`, "operand must be a number"},
+		{"Negation #4", "-false", "operand must be a number"},
+		{"Multiplication #1", `"foo" * 42`, "operands must be numbers"},
+		{"Multiplication #2", `("foo" * "bar")`, "operands must be numbers"},
+		{"Division #1", "true / 2", "operands must be numbers"},
+		{"Division #2", "false / true", "operands must be numbers"},
+		{"Addition #1", `"foo" + true`, "operands must be two numbers or two strings"},
+		{"Addition #2", "true + false", "operands must be two numbers or two strings"},
+		{"Subtraction #1", "42 - true", "operands must be numbers"},
+		{"Subtraction #2", `"foo" - "bar"`, "operands must be numbers"},
+		{"Less #1", `"foo" < false`, "operands must be numbers"},
+		{"Less #2", "true < 2", "operands must be numbers"},
+		{"Less #3", `("foo" + "bar") < 42`, "operands must be numbers"},
+		{"Less Or Equal #1", `"foo" <= false`, "operands must be numbers"},
+		{"Less Or Equal #2", "true <= true", "operands must be numbers"},
+		{"Less Or Equal #3", `("foo" + "bar") <= 42`, "operands must be numbers"},
+		{"Greater #1", "false > true", "operands must be numbers"},
+		{"Greater #2", `false > "foo"`, "operands must be numbers"},
+		{"Greater Or Equal #1", "false >= true", "operands must be numbers"},
+		{"Greater Or Equal #2", `"bar" >= "bar"`, "operands must be numbers"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			exprs := getExpressions(tt.fileContents, t)
-			_, errs := EvaluateExpressions(exprs)
+			_, err := EvaluateExpressions(exprs)
 
-			var actual []string
-			for _, err := range errs {
-				if err == nil {
-					continue
-				}
-				actual = append(actual, err.Error())
-			}
+			actual := err.Error()
 
-			if len(tt.expected) != len(actual) {
-				t.Errorf("Evaluation errors length mismatch: Expected %d errors, got %d", len(tt.expected), len(actual))
-			} else {
-				for index, str := range actual {
-					if tt.expected[index] != str {
-						t.Errorf("Evaluation errors mismatch on error %d\nExpected: %s\nGot: %s", index+1, tt.expected[index], str)
-					}
-				}
+			if tt.expected != actual {
+				t.Errorf("Evaluation error mismatch\nExpected: %s\nGot: %s", tt.expected, actual)
 			}
 		})
 	}

@@ -122,10 +122,10 @@ func (scanner *Scanner) CurrentLexeme() string {
 	return string(scanner.contents[scanner.start:scanner.current])
 }
 
-func (scanner *Scanner) Scan() []error {
+func (scanner *Scanner) Scan() error {
 	line := 1
 	found_error := false
-	errs := make([]error, 0)
+	var err error = nil
 	for !scanner.AtEnd() {
 		scanner.start = scanner.current
 		char := scanner.Advance()
@@ -188,8 +188,8 @@ func (scanner *Scanner) Scan() []error {
 			string_literal := ""
 			for {
 				if scanner.AtEnd() {
-					err := fmt.Errorf("[line %d] Error: Unterminated string.", line)
-					errs = append(errs, err)
+					new_err := newParsingError(fmt.Sprintf("[line %d] Error: Unterminated string.", line))
+					err = errors.Join(err, new_err)
 					break
 				}
 				char := scanner.Advance()
@@ -208,16 +208,17 @@ func (scanner *Scanner) Scan() []error {
 			} else if isAlpha(char) {
 				scanner.ScanIdentifier()
 			} else {
-				err := fmt.Errorf("[line %d] Error: Unexpected character: %c", line, char)
-				errs = append(errs, err)
+				new_err := newParsingError(fmt.Sprintf("[line %d] Error: Unexpected character: %c", line, char))
+				err = errors.Join(err, new_err)
 			}
 		}
 	}
 	scanner.AddToken(EOF, "", nil)
 	if found_error {
-		errs = append(errs, errors.New("error scanning file contents"))
+		new_err := newParsingError("error scanning file contents")
+		err = errors.Join(new_err, err)
 	}
-	return errs
+	return err
 }
 
 func (scanner Scanner) StringifyTokens() string {
