@@ -47,7 +47,7 @@ func handleParse() {
 	if len(errs) != 0 {
 		os.Exit(65)
 	}
-	fmt.Println(parser.StringifyExpressions())
+	fmt.Print(parser.StringifyExpressions())
 }
 
 func handleEvaluate() {

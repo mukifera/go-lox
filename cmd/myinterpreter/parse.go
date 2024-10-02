@@ -255,7 +255,7 @@ func (parser *Parser) Previous() Token {
 func (parser *Parser) StringifyExpressions() string {
 	str := ""
 	for _, expr := range parser.expressions {
-		str += expr.String()
+		str += expr.String() + "\n"
 	}
 	return str
 }
