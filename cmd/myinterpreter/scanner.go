@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"os"
 )
 
 type Scanner struct {
@@ -123,9 +122,10 @@ func (scanner *Scanner) CurrentLexeme() string {
 	return string(scanner.contents[scanner.start:scanner.current])
 }
 
-func (scanner *Scanner) Scan() error {
+func (scanner *Scanner) Scan() []error {
 	line := 1
 	found_error := false
+	errs := make([]error, 0)
 	for !scanner.AtEnd() {
 		scanner.start = scanner.current
 		char := scanner.Advance()
@@ -188,8 +188,8 @@ func (scanner *Scanner) Scan() error {
 			string_literal := ""
 			for {
 				if scanner.AtEnd() {
-					fmt.Fprintf(os.Stderr, "[line %d] Error: Unterminated string.\n", line)
-					found_error = true
+					err := fmt.Errorf("[line %d] Error: Unterminated string", line)
+					errs = append(errs, err)
 					break
 				}
 				char := scanner.Advance()
@@ -208,16 +208,16 @@ func (scanner *Scanner) Scan() error {
 			} else if isAlpha(char) {
 				scanner.ScanIdentifier()
 			} else {
-				fmt.Fprintf(os.Stderr, "[line %d] Error: Unexpected character: %c\n", line, char)
-				found_error = true
+				err := fmt.Errorf("[line %d] Error: Unexpected character: %c", line, char)
+				errs = append(errs, err)
 			}
 		}
 	}
 	scanner.AddToken(EOF, "", nil)
 	if found_error {
-		return errors.New("error scanning file contents")
+		errs = append(errs, errors.New("error scanning file contents"))
 	}
-	return nil
+	return errs
 }
 
 func (scanner Scanner) StringifyTokens() string {

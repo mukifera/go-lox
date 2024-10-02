@@ -22,8 +22,8 @@ func setupScanner() *Scanner {
 
 func setupParser() *Parser {
 	scanner := setupScanner()
-	err := scanner.Scan()
-	if err != nil {
+	errs := scanner.Scan()
+	if len(errs) != 0 {
 		os.Exit(65)
 	}
 	return NewParser(scanner.tokens)
@@ -31,17 +31,17 @@ func setupParser() *Parser {
 
 func handleTokenize() {
 	scanner := setupScanner()
-	err := scanner.Scan()
+	errs := scanner.Scan()
 	fmt.Println(scanner.StringifyTokens())
-	if err != nil {
+	if len(errs) != 0 {
 		os.Exit(65)
 	}
 }
 
 func handleParse() {
 	parser := setupParser()
-	err := parser.Parse()
-	if err != nil {
+	errs := parser.Parse()
+	if len(errs) != 0 {
 		os.Exit(65)
 	}
 	fmt.Println(parser.StringifyExpressions())
@@ -49,8 +49,8 @@ func handleParse() {
 
 func handleEvaluate() {
 	parser := setupParser()
-	err := parser.Parse()
-	if err != nil {
+	errs := parser.Parse()
+	if len(errs) != 0 {
 		os.Exit(65)
 	}
 
@@ -75,12 +75,12 @@ func handleEvaluate() {
 
 func handleRun() {
 	parser := setupParser()
-	err := parser.Parse()
-	if err != nil {
+	errs := parser.Parse()
+	if len(errs) != 0 {
 		os.Exit(65)
 	}
 
-	errs := RunExpressions(parser.expressions)
+	errs = RunExpressions(parser.expressions)
 
 	found_error := false
 	for _, err := range errs {

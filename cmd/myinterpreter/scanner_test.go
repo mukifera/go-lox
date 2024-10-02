@@ -23,8 +23,8 @@ func TestTokenization(t *testing.T) {
 		t.Run(tt.Name, func(t *testing.T) {
 			scanner := NewScanner(tt.FileContents)
 
-			err := scanner.Scan()
-			if err != nil {
+			errs := scanner.Scan()
+			for _, err := range errs {
 				t.Errorf("Scanner: tokenizing error: %v", err)
 			}
 
