@@ -1,23 +1,11 @@
 package main
 
 import (
-	"os"
 	"testing"
-
-	"gopkg.in/yaml.v2"
 )
 
 func TestTokenization(t *testing.T) {
-	var tests []test_config
-
-	yamlFile, err := os.ReadFile("scanner_tests.yaml")
-	if err != nil {
-		t.Errorf("yamlFile.Get err   #%v ", err)
-	}
-	err = yaml.Unmarshal(yamlFile, &tests)
-	if err != nil {
-		t.Errorf("Unmarshal: %v", err)
-	}
+	tests := fetchYAMLFile("scanner_tests.yaml", t)
 
 	for _, tt := range tests {
 		t.Run(tt.Name, func(t *testing.T) {

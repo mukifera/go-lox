@@ -58,3 +58,14 @@
     "baz" == "baz" != "bar"
   expectedOutput: |-
     (!= (== baz baz) bar)
+- name: "Code Blocks"
+  fileContents: |
+    {
+        var bar = 11;
+        var world = 11;
+        {
+            print bar + world;
+    }
+  expectedOutput: ""
+  expectedError: |
+    Error: Unmatched curly brace

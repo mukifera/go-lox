@@ -1,24 +1,12 @@
 package main
 
 import (
-	"os"
 	"strings"
 	"testing"
-
-	"gopkg.in/yaml.v2"
 )
 
 func TestExpressionParsing(t *testing.T) {
-	var tests []test_config
-
-	yamlFile, err := os.ReadFile("parse_tests.yaml")
-	if err != nil {
-		t.Errorf("yamlFile.Get err   #%v ", err)
-	}
-	err = yaml.Unmarshal(yamlFile, &tests)
-	if err != nil {
-		t.Errorf("Unmarshal: %v", err)
-	}
+	tests := fetchYAMLFile("parse_tests.yaml", t)
 
 	for _, tt := range tests {
 		t.Run(tt.Name, func(t *testing.T) {
@@ -33,13 +21,17 @@ func TestExpressionParsing(t *testing.T) {
 
 			err = parser.Parse()
 			if err != nil {
-				t.Errorf("Parser: Error while parsing expressions")
+				actual_err := err.Error()
+				if actual_err != tt.ExpectedError {
+					t.Errorf("Expression parsing mismatch\nExpected error:\n\n%s\nGot:\n\n%s", tt.ExpectedError, actual_err)
+				}
+			} else {
+				actual := strings.Trim(parser.StringifyExpressions(), "\n")
+				if actual != tt.ExpectedOutput {
+					t.Errorf("Expression parsing result is incorrect\nExpected:\n\n%s\nGot:\n\n%s\n", tt.ExpectedOutput, actual)
+				}
 			}
 
-			actual := strings.Trim(parser.StringifyExpressions(), "\n")
-			if actual != tt.ExpectedOutput {
-				t.Errorf("Expression parsing result is incorrect\nExpected:\n\n%s\nGot:\n\n%s\n", tt.ExpectedOutput, actual)
-			}
 		})
 	}
 }

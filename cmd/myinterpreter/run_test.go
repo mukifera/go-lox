@@ -1,33 +1,13 @@
 package main
 
 import (
-	"os"
-
 	"bytes"
 	"testing"
-
-	"gopkg.in/yaml.v2"
 )
-
-type test_config struct {
-	Name           string `yaml:"name"`
-	FileContents   string `yaml:"fileContents"`
-	ExpectedOutput string `yaml:"expectedOutput"`
-	ExpectedError  string `yaml:"expectedError"`
-}
 
 func TestRuntime(t *testing.T) {
 
-	var tests []test_config
-
-	yamlFile, err := os.ReadFile("run_tests.yaml")
-	if err != nil {
-		t.Errorf("yamlFile.Get err   #%v ", err)
-	}
-	err = yaml.Unmarshal(yamlFile, &tests)
-	if err != nil {
-		t.Errorf("Unmarshal: %v", err)
-	}
+	tests := fetchYAMLFile("run_tests.yaml", t)
 
 	for _, tt := range tests {
 		t.Run(tt.Name, func(t *testing.T) {

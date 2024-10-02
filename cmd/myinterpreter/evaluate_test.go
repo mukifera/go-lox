@@ -1,22 +1,8 @@
 package main
 
-import "testing"
-
-func getExpressions(fileContents string, t *testing.T) []Expression {
-	scanner := NewScanner(fileContents)
-	err := scanner.Scan()
-	if err != nil {
-		t.Errorf("Scanner: tokenizing error: %v", err)
-	}
-
-	parser := NewParser(scanner.tokens)
-	err = parser.Parse()
-	if err != nil {
-		t.Errorf("Parser: parsing error: %v", err)
-	}
-
-	return parser.expressions
-}
+import (
+	"testing"
+)
 
 func TestEvaluation(t *testing.T) {
 	tests := []struct {

@@ -271,16 +271,6 @@
   expectedOutput: |
     88
     88
-# - name: "Blocks #4"
-#   fileContents: |
-#     {
-#         var bar = 11;
-#         var world = 11;
-#         {
-#             print bar + world;
-#     }
-#   expectedError: |-
-#     Error: Unmatched curly brace.
 - name: "Scopes #1"
   fileContents: |
     var baz = (91 * 16) - 61;
