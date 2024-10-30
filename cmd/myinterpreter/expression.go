@@ -46,6 +46,7 @@ var OperatorEnum = struct {
 	SLASH         Operator
 	PRINT         Operator
 	VAR           Operator
+	IF            Operator
 }{
 	UNDEFINED:     0,
 	MINUS:         1,
@@ -62,6 +63,7 @@ var OperatorEnum = struct {
 	SLASH:         12,
 	PRINT:         13,
 	VAR:           14,
+	IF:            15,
 }
 
 func (o *Operator) StringSymbol() string {
@@ -94,6 +96,8 @@ func (o *Operator) StringSymbol() string {
 		return "print"
 	case OperatorEnum.VAR:
 		return "var"
+	case OperatorEnum.IF:
+		return "if"
 	}
 	return ""
 }
@@ -168,12 +172,12 @@ func NewUndefinedExpression() Expression {
 	return ret
 }
 
-func NewBuiltinExpression(expr Expression, operator Operator) Expression {
+func NewBuiltinExpression(operator Operator, children ...Expression) Expression {
 	var ret Expression
 	ret.expression_type = ExpressionTypeEnum.BUILTIN
 	ret.operator = operator
 	ret.literal = nil
-	ret.children = []Expression{expr}
+	ret.children = children
 	return ret
 }
 

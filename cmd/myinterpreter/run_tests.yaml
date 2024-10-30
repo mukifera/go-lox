@@ -364,3 +364,37 @@
     outer baz
   expectedError: |-
     undefined variable 'baz'
+- name: "If statements #1"
+  fileContents: |
+    if (true) print "bar";
+  expectedOutput: |
+    bar
+- name: "If statements #2"
+  fileContents: |
+    if (true) {
+      print "block body";
+    }
+  expectedOutput: |
+    block body
+- name: "If statements #3"
+  fileContents: |
+    var a = false;
+    if (a = true) {
+      print (a == true);
+    }
+  expectedOutput: |
+    true
+- name: "If statements #4"
+  fileContents: |
+    var stage = "unknown";
+    var age = 50;
+    if (age < 18) { stage = "child"; }
+    if (age >= 18) { stage = "adult"; }
+    print stage;
+
+    var isAdult = age >= 18;
+    if (isAdult) { print "eligible for voting: true"; }
+    if (!isAdult) { print "eligible for voting: false"; }
+  expectedOutput: |
+    adult
+    eligible for voting: true

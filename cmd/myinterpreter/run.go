@@ -57,6 +57,24 @@ func FRunExpression(writer io.Writer, expr Expression, context []map[string]inte
 
 		context[len(context)-1][variable] = value
 
+	case OperatorEnum.IF:
+		condition := expr.children[0]
+		body := expr.children[1]
+		raw_value, err := EvaluateExpression(condition, context)
+		if err != nil {
+			return err
+		}
+		value, ok := raw_value.(bool)
+		if !ok {
+			return fmt.Errorf("if condition does not evaluate to a boolean")
+		}
+		if value {
+			err = FRunExpression(writer, body, context)
+			if err != nil {
+				return err
+			}
+		}
+
 	default:
 		if expr.expression_type == ExpressionTypeEnum.SCOPE {
 			newScope := make(map[string]interface{})

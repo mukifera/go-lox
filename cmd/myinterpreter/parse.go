@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 )
 
 type Parser struct {
@@ -58,29 +59,46 @@ func (parser *Parser) parseStatements() ([]Expression, error) {
 	exprs := make([]Expression, 0)
 	var err error = nil
 	for !parser.AtEnd() {
-		var expr Expression
-		var sub_err error
-		var sub_exprs []Expression
-		if parser.Matches(LEFT_BRACE) {
-			sub_exprs, sub_err = parser.parseStatements()
-			err = errors.Join(err, sub_err)
-			if !parser.Matches(RIGHT_BRACE) {
-				err = errors.Join(err, newParsingError("Error: Unmatched curly brace"))
-			}
-			expr = NewScopeExpression(sub_exprs...)
-		} else {
-			expr, sub_err = parser.parseExpression()
-			err = errors.Join(err, sub_err)
-			if !parser.AtEnd() && !parser.Matches(SEMICOLON) {
-				err = errors.Join(err, newParsingError("Error: Expected semicolon"))
-			}
-		}
+		expr, sub_err := parser.parseStatement()
+		err = errors.Join(err, sub_err)
 		exprs = append(exprs, expr)
 		if parser.Peek().token_type == RIGHT_BRACE {
 			break
 		}
 	}
 	return exprs, err
+}
+
+func (parser *Parser) parseStatement() (Expression, error) {
+	var expr Expression
+	var sub_err error
+	var sub_exprs []Expression
+	var err error = nil
+	if parser.Matches(IF) {
+		condition, err := parser.parseExpression()
+		if condition.expression_type != ExpressionTypeEnum.GROUPING {
+			err = errors.Join(err, newParsingError("Error: Invalid if condition"))
+		}
+		body, body_err := parser.parseStatement()
+		err = errors.Join(err, body_err)
+		return NewBuiltinExpression(OperatorEnum.IF, condition, body), err
+	}
+	if parser.Matches(LEFT_BRACE) {
+		sub_exprs, sub_err = parser.parseStatements()
+		err = errors.Join(err, sub_err)
+		if !parser.Matches(RIGHT_BRACE) {
+			err = errors.Join(err, newParsingError("Error: Unmatched curly brace"))
+		}
+		expr = NewScopeExpression(sub_exprs...)
+		return expr, err
+	}
+	expr, sub_err = parser.parseExpression()
+	err = errors.Join(err, sub_err)
+	if !parser.AtEnd() && !parser.Matches(SEMICOLON) {
+		fmt.Println(expr.String())
+		err = errors.Join(err, newParsingError("Error: Expected semicolon"))
+	}
+	return expr, err
 }
 
 func (parser *Parser) parseExpression() (Expression, error) {
@@ -198,7 +216,7 @@ func (parser *Parser) parsePrimary() (Expression, error) {
 	}
 	if parser.Matches(PRINT) {
 		expr, err := parser.parseExpression()
-		return NewBuiltinExpression(expr, OperatorEnum.PRINT), err
+		return NewBuiltinExpression(OperatorEnum.PRINT, expr), err
 	}
 	if parser.Matches(VAR) {
 		expr, err := parser.parseExpression()
@@ -208,7 +226,7 @@ func (parser *Parser) parsePrimary() (Expression, error) {
 				expr.children[0].expression_type != ExpressionTypeEnum.IDENTIFIER) {
 			err = errors.Join(err, newParsingError("Error: Invalid variable declaration"))
 		}
-		return NewBuiltinExpression(expr, OperatorEnum.VAR), err
+		return NewBuiltinExpression(OperatorEnum.VAR, expr), err
 	}
 	if parser.Matches(LEFT_PAREN) {
 		expr, err := parser.parseExpression()
