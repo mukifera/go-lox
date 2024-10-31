@@ -276,7 +276,7 @@ func (parser *Parser) parsePrimary() (Expression, error) {
 	}
 	if parser.Matches(PRINT) {
 		expr, err := parser.parseExpression()
-		if expr.expression_type == ExpressionTypeEnum.UNDEFINED {
+		if expr.expression_type == ExpressionTypeEnum.NIL {
 			return expr, errors.Join(err, newParsingError("no arguments for the print statement"))
 		}
 		return NewBuiltinExpression(OperatorEnum.PRINT, expr), err
@@ -300,7 +300,7 @@ func (parser *Parser) parsePrimary() (Expression, error) {
 	}
 	next_token := parser.Peek().token_type
 	if next_token == SEMICOLON || next_token == RIGHT_PAREN || next_token == RIGHT_BRACE {
-		return NewUndefinedExpression(), nil
+		return NewNilExpression(), nil
 	}
 	return NewUndefinedExpression(), newParsingError("Error: Unknown Token")
 }

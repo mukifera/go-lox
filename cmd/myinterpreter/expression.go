@@ -17,6 +17,7 @@ var ExpressionTypeEnum = struct {
 	IDENTIFIER ExpressionType
 	BUILTIN    ExpressionType
 	SCOPE      ExpressionType
+	NIL        ExpressionType
 }{
 	UNDEFINED:  0,
 	LITERAL:    1,
@@ -26,6 +27,7 @@ var ExpressionTypeEnum = struct {
 	IDENTIFIER: 5,
 	BUILTIN:    6,
 	SCOPE:      7,
+	NIL:        8,
 }
 
 type Operator int
@@ -194,6 +196,15 @@ func NewBuiltinExpression(operator Operator, children ...Expression) Expression 
 	ret.operator = operator
 	ret.literal = nil
 	ret.children = children
+	return ret
+}
+
+func NewNilExpression() Expression {
+	var ret Expression
+	ret.expression_type = ExpressionTypeEnum.NIL
+	ret.operator = OperatorEnum.UNDEFINED
+	ret.literal = nil
+	ret.children = []Expression{}
 	return ret
 }
 
