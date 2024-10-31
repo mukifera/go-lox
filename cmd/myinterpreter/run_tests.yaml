@@ -398,3 +398,50 @@
   expectedOutput: |
     adult
     eligible for voting: true
+- name: "If/Else statements #1"
+  fileContents: |
+    if (true) print "if branch"; else print "else branch";
+  expectedOutput: |
+    if branch
+- name: "If/Else statements #2"
+  fileContents: |
+    var age = 21;
+    if (age > 18) print "adult"; else print "child";
+  expectedOutput: |
+    adult
+- name: "If/Else statements #3"
+  fileContents: |
+    if (false) {
+      print "if block";
+    } else print "else statement";
+
+    if (false) print "if statement"; else {
+      print "else block";
+    }
+  expectedOutput: |
+    else statement
+    else block
+- name: "If/Else statements #4"
+  fileContents: |
+    var celsius = 67;
+    var fahrenheit = 0;
+    var isHot = false;
+
+    {
+      fahrenheit = celsius * 9 / 5 + 32;
+      print celsius; print fahrenheit;
+
+      if (celsius > 30) {
+        isHot = true;
+        print "It's a hot day. Stay hydrated!";
+      } else {
+        print "It's cold today. Wear a jacket!";
+      }
+
+      if (isHot) { print "Remember to use sunscreen!"; }
+    }
+  expectedOutput: |
+    67
+    152.6
+    It's a hot day. Stay hydrated!
+    Remember to use sunscreen!

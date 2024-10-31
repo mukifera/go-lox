@@ -75,13 +75,23 @@ func (parser *Parser) parseStatement() (Expression, error) {
 	var sub_exprs []Expression
 	var err error = nil
 	if parser.Matches(IF) {
-		condition, err := parser.parseExpression()
-		if condition.expression_type != ExpressionTypeEnum.GROUPING {
+		var children []Expression
+		sub, err := parser.parseExpression()
+		if sub.expression_type != ExpressionTypeEnum.GROUPING {
 			err = errors.Join(err, newParsingError("Error: Invalid if condition"))
 		}
-		body, body_err := parser.parseStatement()
-		err = errors.Join(err, body_err)
-		return NewBuiltinExpression(OperatorEnum.IF, condition, body), err
+		children = append(children, sub)
+
+		sub, sub_err := parser.parseStatement()
+		err = errors.Join(err, sub_err)
+		children = append(children, sub)
+
+		if parser.Matches(ELSE) {
+			sub, sub_err = parser.parseStatement()
+			err = errors.Join(err, sub_err)
+			children = append(children, sub)
+		}
+		return NewBuiltinExpression(OperatorEnum.IF, children...), err
 	}
 	if parser.Matches(LEFT_BRACE) {
 		sub_exprs, sub_err = parser.parseStatements()

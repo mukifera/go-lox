@@ -73,6 +73,11 @@ func FRunExpression(writer io.Writer, expr Expression, context []map[string]inte
 			if err != nil {
 				return err
 			}
+		} else if len(expr.children) > 2 {
+			err = FRunExpression(writer, expr.children[2], context)
+			if err != nil {
+				return err
+			}
 		}
 
 	default:
