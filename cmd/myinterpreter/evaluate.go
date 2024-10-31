@@ -85,19 +85,23 @@ func evaluateBinaryExpression(expr Expression, context []map[string]interface{})
 	switch expr.operator {
 	case OperatorEnum.STAR:
 		return exec_number_operation(func(l big.Float, r big.Float) interface{} {
-			return *l.Mul(&l, &r)
+			var ret big.Float
+			return *ret.Mul(&l, &r)
 		})
 	case OperatorEnum.SLASH:
 		return exec_number_operation(func(l big.Float, r big.Float) interface{} {
-			return *l.Quo(&l, &r)
+			var ret big.Float
+			return *ret.Quo(&l, &r)
 		})
 	case OperatorEnum.MINUS:
 		return exec_number_operation(func(l big.Float, r big.Float) interface{} {
-			return *l.Sub(&l, &r)
+			var ret big.Float
+			return *ret.Sub(&l, &r)
 		})
 	case OperatorEnum.PLUS:
 		if left, right, ok := assertNumberOperation(left_value, right_value); ok {
-			return *left.Add(&left, &right), nil
+			var ret big.Float
+			return *ret.Add(&left, &right), nil
 		}
 		if left, right, ok := assertStringOperation(left_value, right_value); ok {
 			return left + right, nil
