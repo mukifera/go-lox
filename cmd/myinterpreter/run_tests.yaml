@@ -445,3 +445,49 @@
     152.6
     It's a hot day. Stay hydrated!
     Remember to use sunscreen!
+- name: "Else-if Statements #1"
+  fileContents: |
+    if (true) print "if branch"; else if (false) print "else-if branch";
+  expectedOutput: |
+    if branch
+- name: "Else-if Statements #2"
+  fileContents: |
+    if (true) {
+      print "hello";
+    } else if (true) print "hello";
+
+    if (true) print "hello"; else if (true) {
+      print "hello";
+    }
+  expectedOutput: |
+    hello
+    hello
+- name: "Else-if Statements #3"
+  fileContents: |
+    var age = 88;
+    var stage = "unknown";
+    if (age < 18) { stage = "child"; }
+    else if (age >= 18) { stage = "adult"; }
+    else if (age >= 65) { stage = "senior"; }
+    else if (age >= 100) { stage = "centenarian"; }
+    print stage;
+  expectedOutput: |
+    adult
+- name: "Else-if Statements #4"
+  fileContents: |
+    var age = 67;
+
+    var isAdult = age >= 18;
+    if (isAdult) { print "eligible for voting: true"; }
+    else { print "eligible for voting: false"; }
+
+    if (age < 16) { print "eligible for driving: false"; }
+    else if (age < 18) { print "eligible for driving: learner's permit"; }
+    else { print "eligible for driving: full license"; }
+
+    if (age < 21) { print "eligible for drinking (US): false"; }
+    else { print "eligible for drinking (US): true"; }
+  expectedOutput: |
+    eligible for voting: true
+    eligible for driving: full license
+    eligible for drinking (US): true
