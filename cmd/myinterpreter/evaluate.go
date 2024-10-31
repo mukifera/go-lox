@@ -63,18 +63,26 @@ func evaluateUnaryExpression(expr Expression, context []map[string]interface{}) 
 }
 
 func evaluateBinaryExpression(expr Expression, context []map[string]interface{}) (interface{}, error) {
-	left_value, err := EvaluateExpression(expr.children[0], context)
-	if err != nil {
-		return nil, err
-	}
-	right_value, err := EvaluateExpression(expr.children[1], context)
-	if err != nil {
-		return nil, err
-	}
 
 	num_or_str_operation_error := newRuntimeError("operands must be two numbers or two strings")
 
+	evaluateOperands := func() (interface{}, interface{}, error) {
+		left_value, err := EvaluateExpression(expr.children[0], context)
+		if err != nil {
+			return nil, nil, err
+		}
+		right_value, err := EvaluateExpression(expr.children[1], context)
+		if err != nil {
+			return nil, nil, err
+		}
+		return left_value, right_value, nil
+	}
+
 	exec_number_operation := func(operation numberBinaryOperation) (interface{}, error) {
+		left_value, right_value, err := evaluateOperands()
+		if err != nil {
+			return nil, err
+		}
 		left, right, ok := assertNumberOperation(left_value, right_value)
 		if !ok {
 			return nil, newRuntimeError("operands must be numbers")
@@ -99,6 +107,10 @@ func evaluateBinaryExpression(expr Expression, context []map[string]interface{})
 			return *ret.Sub(&l, &r)
 		})
 	case OperatorEnum.PLUS:
+		left_value, right_value, err := evaluateOperands()
+		if err != nil {
+			return nil, err
+		}
 		if left, right, ok := assertNumberOperation(left_value, right_value); ok {
 			var ret big.Float
 			return *ret.Add(&left, &right), nil
@@ -124,6 +136,10 @@ func evaluateBinaryExpression(expr Expression, context []map[string]interface{})
 			return left.Cmp(&right) > -1
 		})
 	case OperatorEnum.EQUAL_EQUAL:
+		left_value, right_value, err := evaluateOperands()
+		if err != nil {
+			return nil, err
+		}
 		if left, right, ok := assertNumberOperation(left_value, right_value); ok {
 			return left.Cmp(&right) == 0, nil
 		}
@@ -135,6 +151,10 @@ func evaluateBinaryExpression(expr Expression, context []map[string]interface{})
 		}
 		return false, nil
 	case OperatorEnum.BANG_EQUAL:
+		left_value, right_value, err := evaluateOperands()
+		if err != nil {
+			return nil, err
+		}
 		if left, right, ok := assertNumberOperation(left_value, right_value); ok {
 			return left.Cmp(&right) != 0, nil
 		}
@@ -146,6 +166,10 @@ func evaluateBinaryExpression(expr Expression, context []map[string]interface{})
 		}
 		return true, nil
 	case OperatorEnum.EQUAL:
+		right_value, err := EvaluateExpression(expr.children[1], context)
+		if err != nil {
+			return nil, err
+		}
 		if expr.children[0].expression_type != ExpressionTypeEnum.IDENTIFIER {
 			return nil, newRuntimeError("left hand side of an assignment operator must be an identifier")
 		}
@@ -157,6 +181,20 @@ func evaluateBinaryExpression(expr Expression, context []map[string]interface{})
 			}
 		}
 		return nil, newRuntimeError(fmt.Sprintf("variable %s was not declared before assignment", variable))
+
+	case OperatorEnum.OR:
+		left_value, err := EvaluateExpression(expr.children[0], context)
+		if err != nil {
+			return nil, err
+		}
+		if left_value == false || left_value == nil {
+			right_value, err := EvaluateExpression(expr.children[1], context)
+			if err != nil {
+				return nil, err
+			}
+			return right_value, nil
+		}
+		return left_value, nil
 	}
 	return nil, newRuntimeError("unkown binary operator")
 }

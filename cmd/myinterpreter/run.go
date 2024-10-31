@@ -64,10 +64,7 @@ func FRunExpression(writer io.Writer, expr Expression, context []map[string]inte
 		if err != nil {
 			return err
 		}
-		value, ok := raw_value.(bool)
-		if !ok {
-			return fmt.Errorf("if condition does not evaluate to a boolean")
-		}
+		value := raw_value != false && raw_value != nil
 		if value {
 			err = FRunExpression(writer, body, context)
 			if err != nil {

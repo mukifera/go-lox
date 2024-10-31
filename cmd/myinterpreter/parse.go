@@ -45,6 +45,8 @@ func tokenTypeToOperator(token_type TokenType) Operator {
 		return OperatorEnum.GREATER_EQUAL
 	case SLASH:
 		return OperatorEnum.SLASH
+	case OR:
+		return OperatorEnum.OR
 	}
 	return OperatorEnum.UNDEFINED
 }
@@ -136,13 +138,29 @@ func (parser *Parser) parseAssignment() (Expression, error) {
 }
 
 func (parser *Parser) parseEquality() (Expression, error) {
-	expr, err := parser.parseComparison()
+	expr, err := parser.parseLogical()
 
 	for parser.Matches(EQUAL_EQUAL, BANG_EQUAL) {
 		token_type := parser.Previous().token_type
 		operator := tokenTypeToOperator(token_type)
-		right, sub_err := parser.parseComparison()
+		right, sub_err := parser.parseLogical()
 		top := NewBinaryExpression(expr, right, operator)
+		expr = top
+		err = errors.Join(err, sub_err)
+	}
+	return expr, err
+}
+
+func (parser *Parser) parseLogical() (Expression, error) {
+	expr, err := parser.parseComparison()
+
+	for parser.Matches(OR) {
+		var token_type TokenType = parser.Previous().token_type
+		var operator Operator = tokenTypeToOperator(token_type)
+		var right Expression
+		var top Expression
+		right, sub_err := parser.parseComparison()
+		top = NewBinaryExpression(expr, right, operator)
 		expr = top
 		err = errors.Join(err, sub_err)
 	}

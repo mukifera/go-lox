@@ -491,3 +491,64 @@
     eligible for voting: true
     eligible for driving: full license
     eligible for drinking (US): true
+- name: "Logical OR #1"
+  fileContents: |
+    print nil or "ok";
+  expectedOutput: |
+    ok
+- name: "Logical OR #2"
+  fileContents: |
+    if (false or "ok") print "baz";
+    if (nil or "ok") print "baz";
+
+    if (false or false) print "world";
+    if (true or "world") print "world";
+
+    if (24 or "bar") print "bar";
+    if ("bar" or "bar") print "bar";
+  expectedOutput: |
+    baz
+    baz
+    world
+    bar
+    bar
+- name: "Logical OR #3"
+  fileContents: |
+    print 41 or true;
+    print false or 41;
+    print false or false or true;
+
+    print false or false;
+    print false or false or false;
+    print true or true or true or true;
+  expectedOutput: |
+    41
+    41
+    true
+    false
+    false
+    true
+- name: "Logical OR #4"
+  fileContents: |
+    var a = "hello";
+    var b = "hello";
+    (a = false) or (b = true) or (a = "hello");
+    print a;
+    print b;
+  expectedOutput: |
+    false
+    true
+- name: "Logical OR #5"
+  fileContents: |
+    var stage = "unknown";
+    var age = 23;
+    if (age < 18) { stage = "child"; }
+    if (age >= 18) { stage = "adult"; }
+    print stage;
+
+    var isAdult = age >= 18;
+    if (isAdult) { print "eligible for voting: true"; }
+    if (!isAdult) { print "eligible for voting: false"; }
+  expectedOutput: |
+    adult
+    eligible for voting: true

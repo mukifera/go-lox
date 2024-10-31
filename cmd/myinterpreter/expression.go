@@ -47,6 +47,7 @@ var OperatorEnum = struct {
 	PRINT         Operator
 	VAR           Operator
 	IF            Operator
+	OR            Operator
 }{
 	UNDEFINED:     0,
 	MINUS:         1,
@@ -64,6 +65,7 @@ var OperatorEnum = struct {
 	PRINT:         13,
 	VAR:           14,
 	IF:            15,
+	OR:            16,
 }
 
 func (o *Operator) StringSymbol() string {
@@ -98,6 +100,8 @@ func (o *Operator) StringSymbol() string {
 		return "var"
 	case OperatorEnum.IF:
 		return "if"
+	case OperatorEnum.OR:
+		return "or"
 	}
 	return ""
 }
