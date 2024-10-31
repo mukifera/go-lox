@@ -156,6 +156,9 @@ func (parser *Parser) parseAssignment() (Expression, error) {
 
 	for parser.Matches(EQUAL) {
 		right, sub_err := parser.parseEquality()
+		if right.expression_type == ExpressionTypeEnum.NIL {
+			err = errors.Join(err, newParsingError("operator must have operands"))
+		}
 		exprs = append(exprs, right)
 		err = errors.Join(err, sub_err)
 	}
@@ -176,6 +179,9 @@ func (parser *Parser) parseEquality() (Expression, error) {
 		token_type := parser.Previous().token_type
 		operator := tokenTypeToOperator(token_type)
 		right, sub_err := parser.parseLogical()
+		if right.expression_type == ExpressionTypeEnum.NIL {
+			err = errors.Join(err, newParsingError("operator must have operands"))
+		}
 		top := NewBinaryExpression(expr, right, operator)
 		expr = top
 		err = errors.Join(err, sub_err)
@@ -192,6 +198,9 @@ func (parser *Parser) parseLogical() (Expression, error) {
 		var right Expression
 		var top Expression
 		right, sub_err := parser.parseComparison()
+		if right.expression_type == ExpressionTypeEnum.NIL {
+			err = errors.Join(err, newParsingError("operator must have operands"))
+		}
 		top = NewBinaryExpression(expr, right, operator)
 		expr = top
 		err = errors.Join(err, sub_err)
@@ -208,6 +217,9 @@ func (parser *Parser) parseComparison() (Expression, error) {
 		var right Expression
 		var top Expression
 		right, sub_err := parser.parseAddSub()
+		if right.expression_type == ExpressionTypeEnum.NIL {
+			err = errors.Join(err, newParsingError("operator must have operands"))
+		}
 		top = NewBinaryExpression(expr, right, operator)
 		expr = top
 		err = errors.Join(err, sub_err)
@@ -224,6 +236,9 @@ func (parser *Parser) parseAddSub() (Expression, error) {
 		var right Expression
 		var top Expression
 		right, sub_err := parser.parseMultDiv()
+		if right.expression_type == ExpressionTypeEnum.NIL {
+			err = errors.Join(err, newParsingError("operator must have operands"))
+		}
 		top = NewBinaryExpression(expr, right, operator)
 		expr = top
 		err = errors.Join(err, sub_err)
@@ -240,6 +255,9 @@ func (parser *Parser) parseMultDiv() (Expression, error) {
 		var right Expression
 		var top Expression
 		right, sub_err := parser.parseUnary()
+		if right.expression_type == ExpressionTypeEnum.NIL {
+			err = errors.Join(err, newParsingError("operator must have operands"))
+		}
 		top = NewBinaryExpression(expr, right, operator)
 		expr = top
 		err = errors.Join(err, sub_err)
