@@ -276,6 +276,9 @@ func (parser *Parser) parsePrimary() (Expression, error) {
 	}
 	if parser.Matches(PRINT) {
 		expr, err := parser.parseExpression()
+		if expr.expression_type == ExpressionTypeEnum.UNDEFINED {
+			return expr, errors.Join(err, newParsingError("no arguments for the print statement"))
+		}
 		return NewBuiltinExpression(OperatorEnum.PRINT, expr), err
 	}
 	if parser.Matches(VAR) {
