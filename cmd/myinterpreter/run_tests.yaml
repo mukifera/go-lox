@@ -609,4 +609,65 @@
   expectedOutput: |
     child
     eligible for voting: false
-  
+- name: "While statements #1"
+  fileContents: |
+    var foo = 0;
+    while (foo < 3) print foo = foo + 1;
+  expectedOutput: |
+    1
+    2
+    3
+- name: "While statements #2"
+  fileContents: |
+    var quz = 0;
+    while (quz < 3) {
+      print quz;
+      quz = quz + 1;
+    }
+  expectedOutput: |
+    0
+    1
+    2
+- name: "While statements #3"
+  fileContents: |
+    while (false) {
+      print "should not print";
+    }
+
+    var product = 1;
+    var i = 1;
+
+    while (i <= 5) {
+      product = product * i;
+      i = i + 1;
+    }
+
+    print "Product of numbers 1 to 5: "; print product;
+  expectedOutput: |
+    Product of numbers 1 to 5: 
+    120
+- name: "While statements #4"
+  fileContents: |
+    var n = 10;
+    var fm = 0;
+    var fn = 1;
+    var index = 0;
+
+    while (index < n) {
+      print fm;
+      var temp = fm;
+      fm = fn;
+      fn = temp + fn;
+      index = index + 1;
+    }
+  expectedOutput: |
+    0
+    1
+    1
+    2
+    3
+    5
+    8
+    13
+    21
+    34

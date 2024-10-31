@@ -97,6 +97,12 @@ func (parser *Parser) parseStatement() (Expression, error) {
 		}
 		return NewBuiltinExpression(OperatorEnum.IF, children...), err
 	}
+	if parser.Matches(WHILE) {
+		condition, err := parser.parseExpression()
+		sub, sub_err := parser.parseStatement()
+		err = errors.Join(err, sub_err)
+		return NewBuiltinExpression(OperatorEnum.WHILE, condition, sub), err
+	}
 	if parser.Matches(LEFT_BRACE) {
 		sub_exprs, sub_err = parser.parseStatements()
 		err = errors.Join(err, sub_err)
