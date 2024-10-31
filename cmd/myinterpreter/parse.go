@@ -47,6 +47,8 @@ func tokenTypeToOperator(token_type TokenType) Operator {
 		return OperatorEnum.SLASH
 	case OR:
 		return OperatorEnum.OR
+	case AND:
+		return OperatorEnum.AND
 	}
 	return OperatorEnum.UNDEFINED
 }
@@ -154,7 +156,7 @@ func (parser *Parser) parseEquality() (Expression, error) {
 func (parser *Parser) parseLogical() (Expression, error) {
 	expr, err := parser.parseComparison()
 
-	for parser.Matches(OR) {
+	for parser.Matches(OR, AND) {
 		var token_type TokenType = parser.Previous().token_type
 		var operator Operator = tokenTypeToOperator(token_type)
 		var right Expression

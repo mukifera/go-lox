@@ -195,6 +195,19 @@ func evaluateBinaryExpression(expr Expression, context []map[string]interface{})
 			return right_value, nil
 		}
 		return left_value, nil
+	case OperatorEnum.AND:
+		left_value, err := EvaluateExpression(expr.children[0], context)
+		if err != nil {
+			return nil, err
+		}
+		if left_value == false || left_value == nil {
+			return left_value, nil
+		}
+		right_value, err := EvaluateExpression(expr.children[1], context)
+		if err != nil {
+			return nil, err
+		}
+		return right_value, nil
 	}
 	return nil, newRuntimeError("unkown binary operator")
 }

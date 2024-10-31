@@ -552,3 +552,61 @@
   expectedOutput: |
     adult
     eligible for voting: true
+- name: "Logical AND #1"
+  fileContents: |
+    print false and "ok";
+  expectedOutput: |
+    false
+- name: "Logical AND #2"
+  fileContents: |
+    if (false and "bad") print "foo";
+    if (nil and "bad") print "foo";
+
+    if (true and "hello") print "hello";
+    if (97 and "baz") print "baz";
+    if ("baz" and "baz") print "baz";
+    if ("" and "bar") print "bar";
+  expectedOutput: |
+    hello
+    baz
+    baz
+    bar
+- name: "Logical AND #3"
+  fileContents: |
+    print false and 1;
+    print true and 1;
+    print 23 and "hello" and false;
+
+    print 23 and true;
+    print 23 and "hello" and 23;
+  expectedOutput: |
+    false
+    1
+    false
+    true
+    23
+- name: "Logical AND #4"
+  fileContents: |
+    var a = "quz";
+    var b = "quz";
+    (a = true) and (b = false) and (a = "bad");
+    print a;
+    print b;
+  expectedOutput: |
+    true
+    false
+- name: "Logical AND #5"
+  fileContents: |
+    var stage = "unknown";
+    var age = 14;
+    if (age < 18) { stage = "child"; }
+    if (age >= 18) { stage = "adult"; }
+    print stage;
+
+    var isAdult = age >= 18;
+    if (isAdult) { print "eligible for voting: true"; }
+    if (!isAdult) { print "eligible for voting: false"; }
+  expectedOutput: |
+    child
+    eligible for voting: false
+  
