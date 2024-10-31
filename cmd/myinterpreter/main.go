@@ -43,6 +43,7 @@ func handleParse() {
 	parser := setupParser()
 	err := parser.Parse()
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(65)
 	}
 	fmt.Print(parser.StringifyExpressions())

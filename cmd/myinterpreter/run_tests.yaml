@@ -671,3 +671,61 @@
     13
     21
     34
+- name: "For statements #1"
+  fileContents: |
+    for (var baz = 0; baz < 3;) print baz = baz + 1;
+  expectedOutput: |
+    1
+    2
+    3
+- name: "For statements #2"
+  fileContents: |
+    for (var world = 0; world < 3; world = world + 1) {
+      print world;
+    }
+  expectedOutput: |
+    0
+    1
+    2
+- name: "For statements #3"
+  fileContents: |
+    var world = 0;
+    for (; world < 2; world = world + 1) print world;
+
+    for (var foo = 0; foo < 2;) {
+      print foo;
+      foo = foo + 1;
+    }
+  expectedOutput: |
+    0
+    1
+    0
+    1
+- name: "For statements #4"
+  fileContents: |
+    var quz = "after";
+    {
+      var quz = "before";
+
+      for (var quz = 0; quz < 1; quz = quz + 1) {
+        print quz;
+        var quz = -1;
+        print quz;
+      }
+    }
+
+    {
+      for (var quz = 0; quz > 0; quz = quz + 1) {}
+
+      var quz = "after";
+      print quz;
+
+      for (quz = 0; quz < 1; quz = quz + 1) {
+        print quz;
+      }
+    }
+  expectedOutput: |
+    0
+    -1
+    after
+    0

@@ -50,6 +50,7 @@ var OperatorEnum = struct {
 	OR            Operator
 	AND           Operator
 	WHILE         Operator
+	FOR           Operator
 }{
 	UNDEFINED:     0,
 	MINUS:         1,
@@ -70,6 +71,7 @@ var OperatorEnum = struct {
 	OR:            16,
 	AND:           17,
 	WHILE:         18,
+	FOR:           19,
 }
 
 func (o *Operator) StringSymbol() string {
@@ -110,6 +112,8 @@ func (o *Operator) StringSymbol() string {
 		return "and"
 	case OperatorEnum.WHILE:
 		return "while"
+	case OperatorEnum.FOR:
+		return "for"
 	}
 	return ""
 }

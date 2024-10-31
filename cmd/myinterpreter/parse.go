@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 )
 
 type Parser struct {
@@ -103,6 +102,32 @@ func (parser *Parser) parseStatement() (Expression, error) {
 		err = errors.Join(err, sub_err)
 		return NewBuiltinExpression(OperatorEnum.WHILE, condition, sub), err
 	}
+	if parser.Matches(FOR) {
+		if !parser.Matches(LEFT_PAREN) {
+			err = errors.Join(err, newParsingError("expected parenthesis after `for` keyword"))
+		}
+		initial, sub_err := parser.parseExpression()
+		err = errors.Join(err, sub_err)
+		if !parser.Matches(SEMICOLON) {
+			err = errors.Join(err, newParsingError("expected semicolon"))
+		}
+		condition, sub_err := parser.parseExpression()
+		err = errors.Join(err, sub_err)
+		if !parser.Matches(SEMICOLON) {
+			err = errors.Join(err, newParsingError("expected semicolon"))
+		}
+		update, sub_err := parser.parseExpression()
+		err = errors.Join(err, sub_err)
+		if !parser.Matches(RIGHT_PAREN) {
+			err = errors.Join(err, newParsingError("expected right parenthesis"))
+		}
+
+		body, sub_err := parser.parseStatement()
+		err = errors.Join(err, sub_err)
+
+		expr = NewBuiltinExpression(OperatorEnum.FOR, initial, condition, update, body)
+		return expr, err
+	}
 	if parser.Matches(LEFT_BRACE) {
 		sub_exprs, sub_err = parser.parseStatements()
 		err = errors.Join(err, sub_err)
@@ -114,8 +139,7 @@ func (parser *Parser) parseStatement() (Expression, error) {
 	}
 	expr, sub_err = parser.parseExpression()
 	err = errors.Join(err, sub_err)
-	if !parser.AtEnd() && !parser.Matches(SEMICOLON) {
-		fmt.Println(expr.String())
+	if !parser.atBoundary() && !parser.Matches(SEMICOLON) {
 		err = errors.Join(err, newParsingError("Error: Expected semicolon"))
 	}
 	return expr, err
@@ -271,6 +295,10 @@ func (parser *Parser) parsePrimary() (Expression, error) {
 		}
 		return NewGroupingExpression(expr), err
 	}
+	next_token := parser.Peek().token_type
+	if next_token == SEMICOLON || next_token == RIGHT_PAREN || next_token == RIGHT_BRACE {
+		return NewUndefinedExpression(), nil
+	}
 	return NewUndefinedExpression(), newParsingError("Error: Unknown Token")
 }
 
@@ -291,6 +319,11 @@ func (parser *Parser) Peek() Token {
 
 func (parser *Parser) AtEnd() bool {
 	return parser.current >= len(parser.tokens) || parser.tokens[parser.current].token_type == EOF
+}
+
+func (parser *Parser) atBoundary() bool {
+	next_token := parser.Peek().token_type
+	return parser.AtEnd() || next_token == RIGHT_PAREN || next_token == RIGHT_BRACE
 }
 
 func (parser *Parser) Matches(token_types ...TokenType) bool {

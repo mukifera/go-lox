@@ -95,6 +95,35 @@ func FRunExpression(writer io.Writer, expr Expression, context []map[string]inte
 			}
 		}
 
+	case OperatorEnum.FOR:
+		initial := expr.children[0]
+		condition := expr.children[1]
+		update := expr.children[2]
+		body := expr.children[3]
+		context = append(context, make(map[string]interface{}))
+		err := FRunExpression(writer, initial, context)
+		if err != nil {
+			return err
+		}
+		for {
+			raw_value, err := EvaluateExpression(condition, context)
+			if err != nil {
+				return err
+			}
+			value := raw_value != false && raw_value != nil
+			if !value {
+				break
+			}
+			err = FRunExpression(writer, body, context)
+			if err != nil {
+				return err
+			}
+			err = FRunExpression(writer, update, context)
+			if err != nil {
+				return err
+			}
+		}
+
 	default:
 		if expr.expression_type == ExpressionTypeEnum.SCOPE {
 			newScope := make(map[string]interface{})
