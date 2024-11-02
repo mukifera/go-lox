@@ -19,14 +19,14 @@ func TestExpressionParsing(t *testing.T) {
 
 			parser := NewParser(scanner.tokens)
 
-			err = parser.Parse()
+			expr, err := parser.parseExpression()
 			if err != nil {
 				actual_err := err.Error()
 				if actual_err != tt.ExpectedError {
 					t.Errorf("Expression parsing mismatch\nExpected error:\n\n%s\nGot:\n\n%s", tt.ExpectedError, actual_err)
 				}
 			} else {
-				actual := strings.Trim(parser.StringifyExpressions(), "\n")
+				actual := strings.Trim(expr.String(), "\n")
 				if actual != tt.ExpectedOutput {
 					t.Errorf("Expression parsing result is incorrect\nExpected:\n\n%s\nGot:\n\n%s\n", tt.ExpectedOutput, actual)
 				}

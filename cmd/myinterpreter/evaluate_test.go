@@ -10,8 +10,8 @@ func TestEvaluation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.Name, func(t *testing.T) {
-			exprs := getExpressions(tt.FileContents, t)
-			values, err := EvaluateExpressions(exprs)
+			expr := getExpression(tt.FileContents, t)
+			values, err := EvaluateExpressions([]Expression{expr})
 			actual := StringifyEvaluationValues(values)
 
 			if err != nil {

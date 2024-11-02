@@ -119,7 +119,7 @@
     var quz = 20;
     var world = 51;
     var hello = 56;
-    print quz + world + he
+    print quz + world + he;
   expectedError: |-
     undefined variable 'he'
 - name: "No value variable declaration #1"
@@ -729,3 +729,14 @@
     -1
     after
     0
+- name: "Code Blocks"
+  fileContents: |
+    {
+        var bar = 11;
+        var world = 11;
+        {
+            print bar + world;
+    }
+  expectedOutput: ""
+  expectedError: |-
+    Parser: parsing error: Error: Unmatched curly brace

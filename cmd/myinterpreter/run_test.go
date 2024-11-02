@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"testing"
 )
 
@@ -11,9 +12,10 @@ func TestRuntime(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.Name, func(t *testing.T) {
-			exprs := getExpressions(tt.FileContents, t)
+			exprs, err := getExpressions(tt.FileContents, t)
 			var buf bytes.Buffer
-			err := FRunExpressions(&buf, exprs)
+			sub_err := FRunExpressions(&buf, exprs)
+			err = errors.Join(err, sub_err)
 			actual_output := buf.String()
 			actual_err := ""
 			if err != nil {

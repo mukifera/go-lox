@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"testing"
 
@@ -28,7 +29,23 @@ func fetchYAMLFile(file_name string, t *testing.T) []test_config {
 	return tests
 }
 
-func getExpressions(fileContents string, t *testing.T) []Expression {
+func getExpressions(fileContents string, t *testing.T) ([]Expression, error) {
+	scanner := NewScanner(fileContents)
+	err := scanner.Scan()
+	if err != nil {
+		return nil, fmt.Errorf("Scanner: tokenizing error: %v", err)
+	}
+
+	parser := NewParser(scanner.tokens)
+	err = errors.Join(err, parser.Parse())
+	if err != nil {
+		return nil, fmt.Errorf("Parser: parsing error: %v", err)
+	}
+
+	return parser.expressions, nil
+}
+
+func getExpression(fileContents string, t *testing.T) Expression {
 	scanner := NewScanner(fileContents)
 	err := scanner.Scan()
 	if err != nil {
@@ -36,10 +53,10 @@ func getExpressions(fileContents string, t *testing.T) []Expression {
 	}
 
 	parser := NewParser(scanner.tokens)
-	err = errors.Join(err, parser.Parse())
+	expr, err := parser.parseExpression()
 	if err != nil {
 		t.Errorf("Parser: parsing error: %v", err)
 	}
 
-	return parser.expressions
+	return expr
 }

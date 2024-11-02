@@ -62,8 +62,19 @@ func (parser *Parser) parseStatements() ([]Expression, error) {
 	exprs := make([]Expression, 0)
 	var err error = nil
 	for !parser.AtEnd() {
-		expr, sub_err := parser.parseStatement()
-		err = errors.Join(err, sub_err)
+		expr, err := parser.parseVariableDeclaration()
+		if expr.expression_type != ExpressionTypeEnum.NIL {
+			if err != nil {
+				return exprs, err
+			}
+			exprs = append(exprs, expr)
+			continue
+		}
+
+		expr, err = parser.parseStatement()
+		if err != nil {
+			return exprs, err
+		}
 		exprs = append(exprs, expr)
 		if parser.Peek().token_type == RIGHT_BRACE {
 			break
@@ -72,26 +83,79 @@ func (parser *Parser) parseStatements() ([]Expression, error) {
 	return exprs, err
 }
 
+func (parser *Parser) parseVariableDeclaration() (Expression, error) {
+	if !parser.Matches(VAR) {
+		return NewNilExpression(), nil
+	}
+
+	expr, _ := parser.parseExpression()
+	if expr.expression_type != ExpressionTypeEnum.IDENTIFIER &&
+		(expr.expression_type != ExpressionTypeEnum.BINARY ||
+			expr.operator != OperatorEnum.EQUAL ||
+			expr.children[0].expression_type != ExpressionTypeEnum.IDENTIFIER) {
+		return NewNilExpression(), newParsingError("invalid variable declaration")
+	}
+
+	expr = NewBuiltinExpression(OperatorEnum.VAR, expr)
+
+	if !parser.Matches(SEMICOLON) {
+		return NewNilExpression(), newParsingError("expected semicolon after variable declaration")
+	}
+
+	return expr, nil
+}
+
+func (parser *Parser) parseExpressionStatement() (Expression, error) {
+	if parser.Matches(SEMICOLON) {
+		return NewNilExpression(), nil
+	}
+	expr, err := parser.parseExpression()
+	if err != nil {
+		return NewNilExpression(), err
+	}
+	if !parser.Matches(SEMICOLON) {
+		return NewNilExpression(), newParsingError("Error: Expected semicolon")
+	}
+	return expr, nil
+}
+
 func (parser *Parser) parseStatement() (Expression, error) {
 	var expr Expression
-	var sub_err error
 	var sub_exprs []Expression
-	var err error = nil
+	if parser.Matches(PRINT) {
+		expr, err := parser.parseExpression()
+		if expr.expression_type == ExpressionTypeEnum.NIL {
+			return expr, errors.Join(err, newParsingError("no arguments for the print statement"))
+		}
+		if !parser.Matches(SEMICOLON) {
+			return NewNilExpression(), newParsingError("missing semicolon after print statement")
+		}
+		return NewBuiltinExpression(OperatorEnum.PRINT, expr), err
+	}
 	if parser.Matches(IF) {
 		var children []Expression
+		if !parser.Matches(LEFT_PAREN) {
+			return NewNilExpression(), newParsingError("expected ( after if statement")
+		}
 		sub, err := parser.parseExpression()
-		if sub.expression_type != ExpressionTypeEnum.GROUPING {
-			err = errors.Join(err, newParsingError("Error: Invalid if condition"))
+		if err != nil {
+			return NewNilExpression(), err
+		}
+		children = append(children, sub)
+		if !parser.Matches(RIGHT_PAREN) {
+			return NewNilExpression(), newParsingError("expected ) after if condition")
+		}
+		sub, err = parser.parseStatement()
+		if err != nil {
+			return NewNilExpression(), err
 		}
 		children = append(children, sub)
 
-		sub, sub_err := parser.parseStatement()
-		err = errors.Join(err, sub_err)
-		children = append(children, sub)
-
 		if parser.Matches(ELSE) {
-			sub, sub_err = parser.parseStatement()
-			err = errors.Join(err, sub_err)
+			sub, err = parser.parseStatement()
+			if err != nil {
+				return NewNilExpression(), err
+			}
 			children = append(children, sub)
 		}
 		return NewBuiltinExpression(OperatorEnum.IF, children...), err
@@ -103,46 +167,66 @@ func (parser *Parser) parseStatement() (Expression, error) {
 		return NewBuiltinExpression(OperatorEnum.WHILE, condition, sub), err
 	}
 	if parser.Matches(FOR) {
+		var children []Expression
 		if !parser.Matches(LEFT_PAREN) {
-			err = errors.Join(err, newParsingError("expected parenthesis after `for` keyword"))
+			return NewNilExpression(), newParsingError("expected ( after `for` keyword")
 		}
-		initial, sub_err := parser.parseExpression()
-		err = errors.Join(err, sub_err)
 		if !parser.Matches(SEMICOLON) {
-			err = errors.Join(err, newParsingError("expected semicolon"))
+			initial, err := parser.selectParse(parser.parseVariableDeclaration, parser.parseExpressionStatement)
+			if initial.expression_type != ExpressionTypeEnum.NIL {
+				if err != nil {
+					return NewNilExpression(), err
+				}
+			} else if !parser.Matches(SEMICOLON) {
+				return NewNilExpression(), newParsingError("expected expression")
+			}
+			children = append(children, initial)
+		} else {
+			children = append(children, NewNilExpression())
 		}
-		condition, sub_err := parser.parseExpression()
-		err = errors.Join(err, sub_err)
 		if !parser.Matches(SEMICOLON) {
-			err = errors.Join(err, newParsingError("expected semicolon"))
+			condition, err := parser.parseExpression()
+			if condition.expression_type != ExpressionTypeEnum.NIL && err != nil {
+				return NewNilExpression(), err
+			}
+			if !parser.Matches(SEMICOLON) {
+				return NewNilExpression(), newParsingError("expected semicolon")
+			}
+			children = append(children, condition)
+		} else {
+			children = append(children, NewNilExpression())
 		}
-		update, sub_err := parser.parseExpression()
-		err = errors.Join(err, sub_err)
 		if !parser.Matches(RIGHT_PAREN) {
-			err = errors.Join(err, newParsingError("expected right parenthesis"))
+			update, err := parser.parseExpression()
+			if update.expression_type != ExpressionTypeEnum.NIL && err != nil {
+				return NewNilExpression(), err
+			}
+			if !parser.Matches(RIGHT_PAREN) {
+				return NewNilExpression(), newParsingError("expected ) after `for` keyword")
+			}
+			children = append(children, update)
+		} else {
+			children = append(children, NewNilExpression())
 		}
 
-		body, sub_err := parser.parseStatement()
-		err = errors.Join(err, sub_err)
+		body, err := parser.parseStatement()
+		if err != nil {
+			return NewNilExpression(), err
+		}
+		children = append(children, body)
 
-		expr = NewBuiltinExpression(OperatorEnum.FOR, initial, condition, update, body)
+		expr = NewBuiltinExpression(OperatorEnum.FOR, children...)
 		return expr, err
 	}
 	if parser.Matches(LEFT_BRACE) {
-		sub_exprs, sub_err = parser.parseStatements()
-		err = errors.Join(err, sub_err)
+		sub_exprs, _ = parser.parseStatements()
 		if !parser.Matches(RIGHT_BRACE) {
-			err = errors.Join(err, newParsingError("Error: Unmatched curly brace"))
+			return NewNilExpression(), newParsingError("Error: Unmatched curly brace")
 		}
 		expr = NewScopeExpression(sub_exprs...)
-		return expr, err
+		return expr, nil
 	}
-	expr, sub_err = parser.parseExpression()
-	err = errors.Join(err, sub_err)
-	if !parser.atBoundary() && !parser.Matches(SEMICOLON) {
-		err = errors.Join(err, newParsingError("Error: Expected semicolon"))
-	}
-	return expr, err
+	return parser.parseExpressionStatement()
 }
 
 func (parser *Parser) parseExpression() (Expression, error) {
@@ -299,16 +383,6 @@ func (parser *Parser) parsePrimary() (Expression, error) {
 		}
 		return NewBuiltinExpression(OperatorEnum.PRINT, expr), err
 	}
-	if parser.Matches(VAR) {
-		expr, err := parser.parseExpression()
-		if expr.expression_type != ExpressionTypeEnum.IDENTIFIER &&
-			(expr.expression_type != ExpressionTypeEnum.BINARY ||
-				expr.operator != OperatorEnum.EQUAL ||
-				expr.children[0].expression_type != ExpressionTypeEnum.IDENTIFIER) {
-			err = errors.Join(err, newParsingError("Error: Invalid variable declaration"))
-		}
-		return NewBuiltinExpression(OperatorEnum.VAR, expr), err
-	}
 	if parser.Matches(LEFT_PAREN) {
 		expr, err := parser.parseExpression()
 		if !parser.Matches(RIGHT_PAREN) {
@@ -316,11 +390,24 @@ func (parser *Parser) parsePrimary() (Expression, error) {
 		}
 		return NewGroupingExpression(expr), err
 	}
-	next_token := parser.Peek().token_type
-	if next_token == SEMICOLON || next_token == RIGHT_PAREN || next_token == RIGHT_BRACE {
-		return NewNilExpression(), nil
-	}
+	// next_token := parser.Peek().token_type
+	// if next_token == SEMICOLON || next_token == RIGHT_PAREN || next_token == RIGHT_BRACE {
+	// 	return NewNilExpression(), nil
+	// }
 	return NewUndefinedExpression(), newParsingError("Error: Unknown Token")
+}
+
+func (parser *Parser) selectParse(funcs ...func() (Expression, error)) (Expression, error) {
+	for _, f := range funcs {
+		expr, err := f()
+		if expr.expression_type != ExpressionTypeEnum.NIL {
+			if err != nil {
+				return NewNilExpression(), err
+			}
+			return expr, err
+		}
+	}
+	return NewNilExpression(), nil
 }
 
 func (parser *Parser) Advance() Token {
@@ -340,11 +427,6 @@ func (parser *Parser) Peek() Token {
 
 func (parser *Parser) AtEnd() bool {
 	return parser.current >= len(parser.tokens) || parser.tokens[parser.current].token_type == EOF
-}
-
-func (parser *Parser) atBoundary() bool {
-	next_token := parser.Peek().token_type
-	return parser.AtEnd() || next_token == RIGHT_PAREN || next_token == RIGHT_BRACE
 }
 
 func (parser *Parser) Matches(token_types ...TokenType) bool {

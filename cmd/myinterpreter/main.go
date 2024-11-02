@@ -41,22 +41,22 @@ func handleTokenize() {
 
 func handleParse() {
 	parser := setupParser()
-	err := parser.Parse()
+	expr, err := parser.parseExpression()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(65)
 	}
-	fmt.Print(parser.StringifyExpressions())
+	fmt.Println(expr.String())
 }
 
 func handleEvaluate() {
 	parser := setupParser()
-	err := parser.Parse()
+	expr, err := parser.parseExpression()
 	if err != nil {
 		os.Exit(65)
 	}
 
-	values, err := EvaluateExpressions(parser.expressions)
+	values, err := EvaluateExpressions([]Expression{expr})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(70)

@@ -43,7 +43,7 @@
     16 * 38 / 58
   expectedOutput: |-
     (/ (* 16.0 38.0) 58.0)
-- name: "Arithmetic/Addtion And Subtraction"
+- name: "Arithmetic/Addition And Subtraction"
   fileContents: |
     52 + 80 - 94
   expectedOutput: |-
@@ -58,14 +58,3 @@
     "baz" == "baz" != "bar"
   expectedOutput: |-
     (!= (== baz baz) bar)
-- name: "Code Blocks"
-  fileContents: |
-    {
-        var bar = 11;
-        var world = 11;
-        {
-            print bar + world;
-    }
-  expectedOutput: ""
-  expectedError: |
-    Error: Unmatched curly brace
